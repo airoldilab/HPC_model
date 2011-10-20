@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "process_reuters_lda_data_valid"
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+python process_parse_lda_data.py valid 500
+
+

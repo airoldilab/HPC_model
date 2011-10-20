@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#BSUB -q airoldi
+#BSUB -u jbischof@fas.harvard.edu
+#BSUB -J "process_train_test"
+
+python process_train_test_valid.py
+

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#BSUB -q unrestricted_serial
+#BSUB -u jbischof@fas.harvard.edu
+#BSUB -J "data_transfer"
+
+cp -r /n/airoldifs1/jbischof/reuters_output/ -t /n/airoldifs1/jbischof/
+

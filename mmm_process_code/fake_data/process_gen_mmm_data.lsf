@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q short_serial
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "process_gen_mmm_data"
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+./process_gen_mmm_data.sh
+
+

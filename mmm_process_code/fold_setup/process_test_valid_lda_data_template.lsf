@@ -1,0 +1,16 @@
+#!/bin/csh
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q normal_serial
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "process_reuters_lda_data_test_valid"
+
+# Options good for big job arrays
+#BSUB -r
+#BSUB -mig 0
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
