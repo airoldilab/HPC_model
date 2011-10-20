@@ -5,3 +5,5 @@
 \#*
 # Hidden files
 .*
+# Python files
+*.pyc
