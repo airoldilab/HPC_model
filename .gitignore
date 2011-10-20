@@ -1,4 +1,7 @@
 # Temporary & swap files
 *~
 ~*
-.*.sw*
+*.*.sw*
+\#*
+# Hidden files
+.*
