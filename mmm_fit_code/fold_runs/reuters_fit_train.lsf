@@ -1,0 +1,22 @@
+#!/bin/csh
+
+# Desired queue
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "reuters_fit_train"
+
+# Number of cores requested
+#BSUB -n 36
+
+#BSUB -R "span[ptile=12]"
+
+#BSUB -a openmpi 
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+mpirun -np 36 Rscript reuters_fit.R /n/airoldifs1/jbischof/reuters_output/mmm_fits/fit_train/
+
+

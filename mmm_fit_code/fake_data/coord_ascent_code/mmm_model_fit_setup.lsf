@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q short_serial
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "mmm_model_fit_setup"
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+nodes=8
+main_dir=/n/airoldifs1/jbischof/reuters_output/
+obs_data_dir=${main_dir}mmm_raw_data/fake_data/parsed_train_data/
+out_dir=${main_dir}mmm_fits/fake_data/slave_data/
+Rscript mmm_model_fit_setup.R $nodes $obs_data_dir $out_dir

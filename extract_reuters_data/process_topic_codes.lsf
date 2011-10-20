@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#BSUB -q normal_serial 
+#BSUB -u jbischof@fas.harvard.edu
+#BSUB -J "process_topic_codes"
+
+python process_topic_codes.py
+

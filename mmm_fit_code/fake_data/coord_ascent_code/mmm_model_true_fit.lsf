@@ -1,0 +1,18 @@
+#!/bin/csh
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+#BSUB -o "."
+#BSUB -e "."
+
+# THE JOB ARRAY:
+#BSUB -J "MMM_model_fit_true"
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+R --vanilla --no-save < master_script.R
+
+

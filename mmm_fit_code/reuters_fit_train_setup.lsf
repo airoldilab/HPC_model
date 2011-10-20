@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "reuters_fit_train_setup"
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+cutoff=250
+nodes=40
+nu=-3
+main_dir=/n/airoldifs1/jbischof/reuters_output/
+R --vanilla --no-save --args ${nodes} ${nu} ${main_dir}mmm_fits/fit_train${cutoff}/ ${main_dir}mmm_raw_data/ parsed_train_data${cutoff}/ ${cutoff} < reuters_fit_setup.R
+
+

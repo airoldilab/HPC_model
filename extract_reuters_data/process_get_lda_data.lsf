@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#BSUB -q short_serial 
+#BSUB -u jbischof@fas.harvard.edu
+#BSUB -J "get_lda_data"
+
+python process_get_lda_data.py
+

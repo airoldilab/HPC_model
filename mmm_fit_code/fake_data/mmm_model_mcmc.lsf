@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# QUEUE
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "MMM_model_mcmc"
+
+# Number of cores requested
+#BSUB -n 40
+
+#BSUB -a openmpi 
+
+#BSUB "-R span[ptile=6]"
+
+# -o /n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/model_out.txt
+# -e /n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/model_error.txt
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+out_dir=/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/slave_data/
+nodes=40
+mpirun -np $nodes Rscript mmm_model_mcmc.R $out_dir
+
+
