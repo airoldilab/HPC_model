@@ -6,7 +6,8 @@ hpd.gibbs.sampler <- function(current.param.list,
                               #feature.count.list=NULL,
                               #doc.count.list=NULL,
                               topic.address.book=NULL,
-                              ndraws.gibbs=1000,verbose=FALSE,
+                              ndraws.gibbs=1000,Nupdate.hes=5,
+                              verbose=FALSE,
                               print.iter=FALSE,debug=FALSE,
                               tree.job.list=NULL,xi.job.list=NULL,
                               file.current.param.list=NULL,
@@ -15,6 +16,8 @@ hpd.gibbs.sampler <- function(current.param.list,
                               Ndoc.case.control=NULL,
                               Nfeat.case.control=NULL){
 
+  # Set up schedule for updating hessian
+  hes.sched <- sqrt.seq.sched(1,ndraws.gibbs,Nupdate.hes)
 
   # Create list of stored draws
   final.param.list <- setup.final.param.list(current.param.list=current.param.list,
@@ -42,7 +45,7 @@ hpd.gibbs.sampler <- function(current.param.list,
       cat("Tree draws\n")
       master.param.fn(param.tag=5)
       # Refresh the likelihood hessian if on first iteration or each 100 iters
-      update.hessian.like <- any(i == 1, i%%101 == 0)
+      update.hessian.like <- i %in% hes.sched
       #update.hessian.like <- i == 1
       tree.master.out <- tree.master.fn(tree.job.list=tree.job.list,
                                         current.param.list=current.param.list,
@@ -62,7 +65,7 @@ hpd.gibbs.sampler <- function(current.param.list,
       cat("Xi draws\n")
       master.param.fn(param.tag=6)
       # Refresh the likelihood hessian if on first iteration or each 100 iters
-      update.hessian.like <- any(i == 1, i%%101 == 0)
+      update.hessian.like <- i %in% hes.sched
       #update.hessian.like <- i == 1
       xi.master.out <- xi.master.fn(xi.job.list=xi.job.list,
                                     xi.param.vecs=
@@ -116,6 +119,22 @@ hpd.gibbs.sampler <- function(current.param.list,
   return(final.param.list)
 }
 
+
+# Function to space updates
+# First try in sqrt space
+# Want most points in the beginning, none at end
+sqrt.seq.sched <- function(from,to,length.out){
+  sqrt.sched <- seq(sqrt(from),sqrt(to),length.out=length.out+1)
+  sched.raw <- (sqrt.sched[-(length.out+1)])^2
+  sched <- trunc(sched.raw)
+  return(sched)
+}
+
+seq.sched <- function(from,to,length.out){
+  sched.raw <- seq(from,to,length.out=length.out+1)
+  sched <- trunc(sched.raw[-(length.out+1)])
+  return(sched)
+}
 
 # Function to set up final.param.list
 setup.final.param.list <- function(current.param.list,ndraws.gibbs,

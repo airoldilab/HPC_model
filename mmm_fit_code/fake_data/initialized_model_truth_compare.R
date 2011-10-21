@@ -1,10 +1,11 @@
 # Load in fitted parameters and truth
-dir.out <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/slave_data/"
-load(paste(dir.out,"final_ave_params_gibbs.RData",sep=""))
+out.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/"
+data.out.dir <- paste(out.dir,"slave_data/",sep="")
+load(paste(data.out.dir,"final_ave_params_gibbs.RData",sep=""))
 truth.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/fake_data/"
 load(paste(truth.dir,"mmm_true_params.RData",sep=""))
 
-burnin <- 200
+burnin <- 600
 
 # Which words fit in model?
 features.use <- rownames(final.param.list$mu.param.vecs)
@@ -30,6 +31,7 @@ xi.d.true <- true.param.list$xi.param.vecs[docs.use,]
 
 # Compare topic log odds mean parameters
 eta.vec.fit <- final.param.list$eta.vec
+eta.vec.fit.ave <- colMeans(final.param.list$eta.vec[-c(1:burnin),])
 eta.vec.true <- true.param.list$eta.vec
 
 # Compare hyperparameters
@@ -45,7 +47,7 @@ lambda2.fit <- final.param.list$lambda2
 lambda2.true <- true.param.list$lambda2
 
 # Create pdf of difference histograms
-file.pdf <- paste(dir.out,"fit_true_param_diff.pdf",sep="")
+file.pdf <- paste(out.dir,"fit_true_param_diff.pdf",sep="")
 pdf(file.pdf,width=8,height=6)
 par(mfrow=c(2,2))
 hist(mu.f.fit-mu.f.true,'fd',main="Fitted versus true mu.f difference",xlab="mu.f")
@@ -58,7 +60,7 @@ hist(xi.d.fit-xi.d.true,'fd',main="Fitted versus true xi.d difference",xlab="xi.
 abline(v=0,col="red")
 dev.off()
 
-file.hparam.pdf <- paste(dir.out,"fit_tree_hparam_hist.pdf",sep="")
+file.hparam.pdf <- paste(out.dir,"fit_tree_hparam_hist.pdf",sep="")
 pdf(file.hparam.pdf,width=8,height=6)
 par(mfrow=c(2,2))
 hist(psi.fit[-c(1:burnin)],'fd',main="Samples from psi posterior",xlab="psi draws")
@@ -72,7 +74,7 @@ abline(v=sigma2.true,col="red")
 dev.off()
 
 
-file.hparam.trace.pdf <- paste(dir.out,"fit_true_hparam_trace.pdf",sep="")
+file.hparam.trace.pdf <- paste(out.dir,"fit_true_hparam_trace.pdf",sep="")
 pdf(file.hparam.trace.pdf,width=8,height=6)
 par(mfrow=c(2,2))
 plot(psi.fit,main="Traceplot of psi draws",xlab="Iteration",ylab="psi",type="l")
@@ -85,7 +87,7 @@ plot(sigma2.fit,main="Traceplot of sigma2 draws",xlab="Iteration",ylab="sigma2",
 abline(h=sigma2.true,col="red")
 dev.off()
 
-file.hparam.trace2.pdf <- paste(dir.out,"fit_true_hparam_trace2.pdf",sep="")
+file.hparam.trace2.pdf <- paste(out.dir,"fit_true_hparam_trace2.pdf",sep="")
 pdf(file.hparam.trace2.pdf,width=8,height=6)
 par(mfrow=c(2,2))
 plot(eta.vec.fit[,1],main="Traceplot of eta1 draws",xlab="Iteration",ylab="eta1",type="l")
@@ -99,7 +101,7 @@ abline(h=lambda2.true,col="red")
 dev.off()
 
 burnin <- 400
-file.hparam.pdf <- paste(dir.out,"fit_doc_hparam_hist.pdf",sep="")
+file.hparam.pdf <- paste(out.dir,"fit_doc_hparam_hist.pdf",sep="")
 pdf(file.hparam.pdf,width=8,height=6)
 par(mfrow=c(2,2))
 hist(eta.vec.fit[-c(1:burnin),1],main="Samples from eta1 posterior",xlab="eta1")
@@ -110,4 +112,11 @@ hist(eta.vec.fit[-c(1:burnin),3],main="Samples from eta3 posterior",xlab="eta3")
 abline(v=eta.vec.true[3],col="red")
 hist(lambda2.fit[-c(1:burnin)],main="Samples from lambda2 posterior",xlab="lambda2")
 abline(v=lambda2.true,col="red")
+dev.off()
+
+# Compare expectations of eta to true parameter values
+pdf(paste(out.dir,"fit_true_eta_diff.pdf",sep=""))
+hist(eta.vec.fit.ave-eta.vec.true,'fd',
+     main="Fitted versus true eta difference",xlab="eta")
+abline(v=0,col="red")
 dev.off()

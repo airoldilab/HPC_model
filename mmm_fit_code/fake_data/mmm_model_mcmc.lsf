@@ -23,5 +23,3 @@
 out_dir=/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/slave_data/
 nodes=40
 mpirun -np $nodes Rscript mmm_model_mcmc.R $out_dir
-
-

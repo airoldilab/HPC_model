@@ -3,11 +3,12 @@
 
 ## args <- commandArgs(TRUE)
 ## out.dir <- args[1]
-out.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/slave_data/"
-file.final.param.list <- paste(out.dir,"final_params_gibbs.RData",sep="")
+out.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/"
+data.out.dir <- paste(out.dir,"slave_data/",sep="")
+file.final.param.list <- paste(data.out.dir,"final_params_gibbs.RData",sep="")
 truth.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/fake_data/"
 load(paste(truth.dir,"mmm_true_params.RData",sep=""))
-burnin <- 200
+burnin <- 600
 
 # Load in final.param.list
 load(file.final.param.list)
@@ -44,7 +45,7 @@ final.param.list$mu.corpus.vec <-
   apply(final.param.list$mu.corpus.vec[-c(1:burnin,na.pos),],2,mean)
 
 # Save averaged parameter values
-file.out <- paste(out.dir,"final_ave_params_gibbs.RData",sep="")
+file.out <- paste(data.out.dir,"final_ave_params_gibbs.RData",sep="")
 save(final.param.list,file=file.out)
 
 ## plot(na.omit(final.param.list$mu.corpus.vec[,1]),ylab="mu_1,1",xlab="Iteration",
