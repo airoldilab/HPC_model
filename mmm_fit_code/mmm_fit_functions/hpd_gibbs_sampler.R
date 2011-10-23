@@ -85,7 +85,6 @@ hpd.gibbs.sampler <- function(current.param.list,
     # Draw hyperameters
     hparam.outlist <- hparam.draw(current.param.list=current.param.list,
                                   tree.update=tree.update,xi.update=xi.update)
-    print(hparam.outlist)
     if(tree.update){
       current.param.list$psi <- hparam.outlist$psi
       current.param.list$gamma <- hparam.outlist$gamma
@@ -93,9 +92,13 @@ hpd.gibbs.sampler <- function(current.param.list,
       current.param.list$sigma2 <- hparam.outlist$sigma2
     }
     if(xi.update){
-      current.param.list$lambda2 <- hparam.outlist$lambda2
       current.param.list$eta.vec <- hparam.outlist$eta.vec
+      if(current.param.list$full.Sigma){
+        current.param.list$Sigma <- hparam.outlist$Sigma
+        hparam.outlist$Sigma <- diag(hparam.outlist$Sigma)
+      } else {current.param.list$lambda2 <- hparam.outlist$lambda2}
     }
+    print(hparam.outlist)
 
     
     # Write out new current.param.list
@@ -105,7 +108,7 @@ hpd.gibbs.sampler <- function(current.param.list,
     # Store the latest draws
     final.param.list <- store.param.draws(i=i,current.param.list=current.param.list,
                                           final.param.list=final.param.list,
-                                          hparam.outlist=hparam.outlist,
+                                          #hparam.outlist=hparam.outlist,
                                           tree.update=tree.update,xi.update=xi.update)
     
     # Write out new final.param.list every 50 draws
@@ -119,7 +122,8 @@ hpd.gibbs.sampler <- function(current.param.list,
   return(final.param.list)
 }
 
-
+#########################################################################
+#########################################################################
 # Function to space updates
 # First try in sqrt space
 # Want most points in the beginning, none at end
@@ -135,6 +139,9 @@ seq.sched <- function(from,to,length.out){
   sched <- trunc(sched.raw[-(length.out+1)])
   return(sched)
 }
+
+#########################################################################
+#########################################################################
 
 # Function to set up final.param.list
 setup.final.param.list <- function(current.param.list,ndraws.gibbs,
@@ -172,9 +179,13 @@ setup.final.param.list <- function(current.param.list,ndraws.gibbs,
     doc.names.sample <- doc.names[docs.sample]
     final.param.list$xi.param.vecs <- array(NA,dim=c(ndocs.sample,K,ndraws.gibbs),
                                             dimnames=list(doc.names.sample,topic.names,NULL))
-    final.param.list$lambda2 <- rep(NA,ndraws.gibbs)
     final.param.list$eta.vec <- matrix(NA,nrow=ndraws.gibbs,ncol=K,
                                        dimnames=list(NULL,topic.names))
+    if(current.param.list$full.Sigma){
+      final.param.list$Sigma <- array(NA,dim=c(K,K,ndraws.gibbs),
+                                            dimnames=list(topic.names,topic.names,NULL))
+    } else {final.param.list$lambda2 <- rep(NA,ndraws.gibbs)}
+    
   }
   
   return(final.param.list)
@@ -182,25 +193,29 @@ setup.final.param.list <- function(current.param.list,ndraws.gibbs,
 
 
 store.param.draws <- function(i,current.param.list,final.param.list,
-                              hparam.outlist,tree.update=TRUE,xi.update=TRUE){
+                              tree.update=TRUE,xi.update=TRUE){
 
   if(tree.update){
     # Store tree parameters
     final.param.list$mu.corpus.vec[i,] <- current.param.list$mu.corpus.vec
     final.param.list$mu.param.vecs[,,i] <- current.param.list$mu.param.vecs
     final.param.list$tau2.param.vecs[,,i] <- current.param.list$tau2.param.vecs
-    final.param.list$psi[i] <- hparam.outlist$psi
-    final.param.list$gamma[i] <- hparam.outlist$gamma
-    final.param.list$nu[i] <- hparam.outlist$nu
-    final.param.list$sigma2[i] <- hparam.outlist$sigma2
+    final.param.list$psi[i] <- current.param.list$psi
+    final.param.list$gamma[i] <- current.param.list$gamma
+    final.param.list$nu[i] <- current.param.list$nu
+    final.param.list$sigma2[i] <- current.param.list$sigma2
   }
 
   if(xi.update){
     # Store xi parameters
     docs.sample <- rownames(final.param.list$xi.param.vecs[,,1])
     final.param.list$xi.param.vecs[,,i] <- current.param.list$xi.param.vecs[docs.sample,]
-    final.param.list$lambda2[i] <- hparam.outlist$lambda2
-    final.param.list$eta.vec[i,] <- hparam.outlist$eta.vec
+    final.param.list$lambda2[i] <- current.param.list$lambda2
+    final.param.list$eta.vec[i,] <- current.param.list$eta.vec
+
+    if(current.param.list$full.Sigma){
+      final.param.list$Sigma[,,i] <- current.param.list$Sigma
+    } else {final.param.list$lambda2[i] <- current.param.list$lambda2}
   }
   
   return(final.param.list)

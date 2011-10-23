@@ -43,14 +43,30 @@ hparam.draw <- function(current.param.list,tree.update=TRUE,
   }
 
   if(xi.update){
-    lambda2.old <- current.param.list$lambda2
-    xi.out <- xi.hparam.draw(xi.param.vecs=current.param.list$xi.param.vecs,
-                             lambda2.old=lambda2.old,D=D,K=K)
-    eta.vec.new <- xi.out$eta.vec
-    lambda2.new <- xi.out$lambda2
-    out.list$eta.vec <- eta.vec.new
-    out.list$lambda2 <- lambda2.new
+    # Two possible updates depending on whether have
+    # unrestricted Sigma
+    if(current.param.list$full.Sigma){
+      xi.out <- xi.hparam.draw(xi.param.vecs=current.param.list$xi.param.vecs,
+                               Sigma.old=current.param.list$Sigma,
+                               D=D,K=K,full.Sigma=TRUE,
+                               kappa=current.param.list$kappa,
+                               Sigma.0=current.param.list$Sigma.0)
+      eta.vec.new <- xi.out$eta.vec
+      Sigma.new <- xi.out$Sigma
+      
+    } else {
+      xi.out <- xi.hparam.draw(xi.param.vecs=current.param.list$xi.param.vecs,
+                               lambda2.old=current.param.list$lambda2,
+                               D=D,K=K)
+      eta.vec.new <- xi.out$eta.vec
+      lambda2.new <- xi.out$lambda2
+    }
   }
+
+  out.list$eta.vec <- eta.vec.new
+
+  if(current.param.list$full.Sigma){out.list$Sigma <- Sigma.new
+  } else {out.list$lambda2 <- lambda2.new}
 
   return(out.list)
 }

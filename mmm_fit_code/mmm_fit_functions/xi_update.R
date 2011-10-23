@@ -2,8 +2,10 @@
 
 # Function to get params and data in useful format (anything that
 # doesn't involve xi and should not be recalculated)
-get.data.for.xi <- function(doc.id,mu.param.vecs,eta.vec,lambda2,
+get.data.for.xi <- function(doc.id,mu.param.vecs,
                             doc.length.vec,doc.count.list,
+                            eta.vec,full.Sigma,
+                            lambda2=NULL,Sigma=NULL,
                             doc.topic.list=NULL,
                             classify=FALSE,active.only=TRUE,
                             Nfeat.case.control=NULL){
@@ -78,14 +80,26 @@ get.data.for.xi <- function(doc.id,mu.param.vecs,eta.vec,lambda2,
           like.mult <- NULL}
 
   # Extract xi prior parameters
+  # Four possible extractions, depending on whether only
+  # maximizing over active topics and whether allowing for
+  # unrestricted covariance matrix
   eta.vec <- eta.vec[topics]
   if(active.only){
-    Sigma <- lambda2*diag(length(active.topics))
     eta.vec <- eta.vec[active.topics]
-    Sigma.inv <- (1/lambda2)*diag(length(active.topics))
+    if(full.Sigma){
+      Sigma <- Sigma[active.topics,active.topics]
+      Sigma.inv <- solve(Sigma)
+    } else {
+      Sigma <- lambda2*diag(length(active.topics))
+      Sigma.inv <- (1/lambda2)*diag(length(active.topics))
+    }
   } else {
-    Sigma <- lambda2*diag(length(topics))
-    Sigma.inv <- (1/lambda2)*diag(length(topics))
+    if(full.Sigma){
+      Sigma.inv <- solve(Sigma)
+    } else {
+      Sigma <- lambda2*diag(length(topics))
+      Sigma.inv <- (1/lambda2)*diag(length(topics))
+    }
   }
     
   xi.data.list <- list(counts.doc=counts.doc,I.doc.vec=I.doc.vec,
@@ -387,7 +401,9 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
   # Construct data needed for optimization
   xi.data.list <- get.data.for.xi(doc.id=job.id,
                                   eta.vec=current.param.list$eta.vec,
+                                  full.Sigma=current.param.list$full.Sigma,
                                   lambda2=current.param.list$lambda2,
+                                  Sigma=current.param.list$Sigma,
                                   mu.param.vecs=current.param.list$mu.param.vecs,
                                   doc.length.vec=doc.length.vec,
                                   doc.count.list=doc.count.list,

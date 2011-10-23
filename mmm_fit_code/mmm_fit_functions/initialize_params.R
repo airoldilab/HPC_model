@@ -111,7 +111,9 @@ initialize.params <- function(feature.count.list,doc.count.list,
                               filename.eta.vec,
                               filename.theta.param.vecs,
                               corpus.topic="CORPUS",
-                              lambda2.start=4){
+                              lambda2.start=4,
+                              kappa=10,
+                              full.Sigma=FALSE){
   
   # Get list of topics and create theta vectors
   topics <- topic.address.book[,"topic"]
@@ -198,6 +200,14 @@ initialize.params <- function(feature.count.list,doc.count.list,
   nu <- inv.chisq.opt[1]
   sigma2 <- inv.chisq.opt[2]
   
+  # Figure out if full Sigma matrix requested and then create one
+  # Ideally this will eventually be initialized as a scaled up
+  # version of the empirical cov matrix of the topic indicators
+  if(full.Sigma){
+    Sigma <- lambda2.start*diag(K)
+    Sigma.0 <- Sigma
+  } else {Sigma.0 <- Sigma <- NULL}
+  
   # Return list of initialized parameters
   current.param.list <- list(theta.param.vecs=theta.param.vecs,
                              #xi.param.list=doc.xi.list,
@@ -208,6 +218,8 @@ initialize.params <- function(feature.count.list,doc.count.list,
                              K=K,D=D,V=V,
                              psi=psi,gamma=sqrt(gamma2),
                              lambda2=lambda2.start,
+                             full.Sigma=full.Sigma,Sigma=Sigma,
+                             Sigma.0=Sigma.0,kappa=kappa,
                              eta.vec=eta.vec,
                              nu=nu,sigma2=sigma2,
                              parent.child.list=parent.child.list)

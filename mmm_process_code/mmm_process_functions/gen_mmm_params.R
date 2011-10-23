@@ -3,6 +3,7 @@
 gen.mmm.params <- function(nchildren,nlevels,ndocs,nwords,
                            psi,gamma,nu,sigma2,
                            eta.vec=NULL,lambda2=NULL,
+                           Sigma=NULL,full.Sigma=FALSE,
                            gp="dirichlet",verbose=FALSE){
 
   # Translate function inputs into model's inputs
@@ -17,7 +18,8 @@ gen.mmm.params <- function(nchildren,nlevels,ndocs,nwords,
   alpha <- as.vector(rdirichlet(1,rep(1,K)))
 
   # Generate theta parameters
-  Sigma <- lambda2*diag(K)
+  # If unrestricted Sigma not requested, make a diag matrix
+  if(!full.Sigma){Sigma <- lambda2*diag(K)}
   theta.out <- gen.theta.param.vecs(alpha=alpha,eta.vec=eta.vec,Sigma=Sigma,
                                     D=D,gp=gp,verbose=verbose)
   theta.param.vecs <- theta.out$theta.param.vecs
@@ -65,6 +67,8 @@ gen.mmm.params <- function(nchildren,nlevels,ndocs,nwords,
     names(eta.vec) <- topics
     true.param.list$eta.vec <- eta.vec
     true.param.list$lambda2 <- lambda2
+    true.param.list$Sigma <- Sigma
+    true.param.list$full.Sigma <- full.Sigma
   }
 
   return(list(true.param.list=true.param.list,

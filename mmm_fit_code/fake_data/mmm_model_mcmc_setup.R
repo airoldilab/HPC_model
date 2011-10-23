@@ -76,7 +76,10 @@ if(!use.true.params){
                       filename.theta.param.vecs=filename.theta.param.vecs,
                       #filename.doc.xi=filename.doc.xi,
                       corpus.topic="CORPUS",
-                      topic.address.book=topic.address.book)
+                      topic.address.book=topic.address.book,
+                      lambda2.start=4,
+                      kappa=1,
+                      full.Sigma=TRUE)
   
   ## # For now, borrow hyperparameters from known values
   ## # Alpha being set to uniform vector to ensure unimodal conditional
