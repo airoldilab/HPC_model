@@ -72,7 +72,7 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
 } else {
   final.param.list <- hpd.gibbs.sampler(current.param.list=current.param.list,
                                         topic.address.book=topic.address.book,
-                                        ndraws.gibbs=5000,
+                                        ndraws.gibbs=2500,
                                         verbose=FALSE,
                                         print.iter=TRUE,
                                         debug=FALSE,

@@ -67,26 +67,29 @@ if(!use.true.params){
   #filename.doc.xi <- paste(obs.data.dir,"doc_xi_list.RData",sep="")
   filename.eta.vec <- paste(obs.data.dir,"eta_vec.txt",sep="")
   filename.theta.param.vecs <- paste(obs.data.dir,"initialized_theta.txt",sep="")
+  filename.mu.param.vecs <- paste(obs.data.dir,"initialized_mu.txt",sep="")
+  filename.mu.corpus.vec <- paste(obs.data.dir,"initialized_corpus_mu.txt",sep="")
+  filename.tau2.vec <- paste(obs.data.dir,"initialized_tau2.txt",sep="")
+  
   current.param.list <-
     initialize.params(feature.count.list=feature.count.list,
                       doc.count.list=doc.count.list,
                       doc.length.vec=doc.length.vec,
                       doc.topic.list=doc.topic.list,
+                      filename.mu.param.vecs=filename.mu.param.vecs,
+                      filename.mu.corpus.vec=filename.mu.corpus.vec,
+                      filename.tau2.vec=filename.tau2.vec,
                       filename.eta.vec=filename.eta.vec,
                       filename.theta.param.vecs=filename.theta.param.vecs,
-                      #filename.doc.xi=filename.doc.xi,
+                      filename.doc.xi=NULL,
                       corpus.topic="CORPUS",
                       topic.address.book=topic.address.book,
-                      lambda2.start=4,
-                      kappa=1,
-                      full.Sigma=TRUE)
+                      lambda2.start=5,
+                      #scale.Sigma.0=4,
+                      #kappa=0.001,
+                      full.Sigma=FALSE)
   
   ## # For now, borrow hyperparameters from known values
-  ## # Alpha being set to uniform vector to ensure unimodal conditional
-  ## # posterior for theta.d
-  ## alpha.true <- true.param.list$alpha
-  ## alpha.use <- rep(1,length(alpha.true))
-  ## current.param.list[["alpha"]] <- alpha.use
   ## current.param.list[["nu"]] <- true.param.list$nu
   ## current.param.list[["sigma2"]] <- true.param.list$sigma2
   ## current.param.list[["lambda2"]] <- true.param.list$lambda2
