@@ -175,18 +175,21 @@ tau2f.new <- tau2.draw(job.id=job.id,mu.f=mu.f,mu.0.f=mu.0.f,
 
 
 # Try HMC
+library("MCMCpack")
 system.time(
-hmc.draws <- hmc.tree(job.id=job.id,ndraws=10,step.size=0.2,nsteps=5,
+hmc.draws <- hmc.tree(job.id=job.id,ndraws=1000,step.size=0.2,nsteps=10,
                       current.param.list=current.param.list,
                       doc.length.vec=doc.length.vec,
                       doc.topic.list=doc.topic.list,
                       feature.count.list=feature.count.list,
                       topic.address.book=topic.address.book,
-                      n.sample.hes=1000,Ndoc.case.control=NULL,
+                      n.sample.hes=NULL,Ndoc.case.control=NULL,
                       debug=FALSE)
             )
-index <- 8
+index <- 7
 plot(hmc.draws[,index],type="b")
+hist(hmc.draws[,index],'fd')
+acf(hmc.draws[,index])
 
 # Put HMC draws in current.param.list and run HMC again
 current.param.list$mu.param.vecs[job.id,] <- hmc.draws[nrow(hmc.draws),1:K]

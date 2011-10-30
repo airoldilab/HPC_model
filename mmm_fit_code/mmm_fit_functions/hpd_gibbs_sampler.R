@@ -6,15 +6,18 @@ hpd.gibbs.sampler <- function(current.param.list,
                               #feature.count.list=NULL,
                               #doc.count.list=NULL,
                               topic.address.book=NULL,
-                              ndraws.gibbs=1000,Nupdate.hes=5,
+                              ndraws.gibbs=1500,Nupdate.hes=3,
                               verbose=FALSE,
                               print.iter=FALSE,debug=FALSE,
                               tree.job.list=NULL,xi.job.list=NULL,
                               file.current.param.list=NULL,
                               file.final.param.list=NULL,
+                              file.ave.param.list=NULL,
                               tree.update=TRUE,xi.update=TRUE,
                               Ndoc.case.control=NULL,
-                              Nfeat.case.control=NULL){
+                              Nfeat.case.control=NULL,
+                              nwords.trace=50,ndocs.trace=50,
+                              ndraws.save.final=5){
 
   # Set up schedule for updating hessian
   hes.sched <- sqrt.seq.sched(1,ndraws.gibbs,Nupdate.hes)
@@ -22,7 +25,8 @@ hpd.gibbs.sampler <- function(current.param.list,
   # Create list of stored draws
   final.param.list <- setup.final.param.list(current.param.list=current.param.list,
                                              ndraws.gibbs=ndraws.gibbs,
-                                             tree.update=tree.update,xi.update=xi.update)
+                                             tree.update=tree.update,xi.update=xi.update,
+                                             nwords.trace=nwords.trace,ndocs.trace=ndocs.trace)
   
   # Send out signal to slaves to load up their data
   n.slaves <- mpi.comm.size(0)
@@ -46,7 +50,6 @@ hpd.gibbs.sampler <- function(current.param.list,
       master.param.fn(param.tag=5)
       # Refresh the likelihood hessian if on first iteration or each 100 iters
       update.hessian.like <- i %in% hes.sched
-      #update.hessian.like <- i == 1
       tree.master.out <- tree.master.fn(tree.job.list=tree.job.list,
                                         current.param.list=current.param.list,
                                         update.hessian.like=update.hessian.like)
@@ -66,7 +69,6 @@ hpd.gibbs.sampler <- function(current.param.list,
       master.param.fn(param.tag=6)
       # Refresh the likelihood hessian if on first iteration or each 100 iters
       update.hessian.like <- i %in% hes.sched
-      #update.hessian.like <- i == 1
       xi.master.out <- xi.master.fn(xi.job.list=xi.job.list,
                                     xi.param.vecs=
                                     current.param.list$xi.param.vecs,
@@ -77,8 +79,6 @@ hpd.gibbs.sampler <- function(current.param.list,
       current.param.list$theta.param.vecs <-
         as(xi.master.out$theta.param.vecs,"sparseMatrix")
       current.param.list$xi.param.vecs <- xi.master.out$xi.param.vecs
-      ## # Write out new current.param.list
-      ## save(current.param.list,file=file.current.param.list)
     }
 
 
@@ -111,8 +111,8 @@ hpd.gibbs.sampler <- function(current.param.list,
                                           #hparam.outlist=hparam.outlist,
                                           tree.update=tree.update,xi.update=xi.update)
     
-    # Write out new final.param.list every 50 draws
-    if(i%%50 == 0){save(final.param.list,file=file.final.param.list)}
+    # Write out new final.param.list every ndraws.save.final draws
+    if(i %% ndraws.save.final == 0){save(final.param.list,file=file.final.param.list)}
   }
 
   # Tell worker nodes to exit
@@ -146,7 +146,7 @@ seq.sched <- function(from,to,length.out){
 # Function to set up final.param.list
 setup.final.param.list <- function(current.param.list,ndraws.gibbs,
                                    tree.update=TRUE,xi.update=TRUE,
-                                   ndocs.sample=1000){
+                                   nwords.trace=NULL,ndocs.trace=NULL){
   K <- current.param.list$K
   D <- current.param.list$D
   V <- current.param.list$V
@@ -159,13 +159,21 @@ setup.final.param.list <- function(current.param.list,ndraws.gibbs,
   final.param.list <- list()
 
   if(tree.update){
+    if(!is.null(nwords.trace)){
+      # Pick random sample of words to store
+      words.trace <- sample(x=word.names,size=nwords.trace,replace=FALSE)
+      word.names.trace <- word.names[words.trace]
+    } else {
+      nwords.trace <- V
+      word.names.trace <- word.names
+    }
     # Set up place to store tree parameters
-    final.param.list$mu.corpus.vec <- matrix(NA,nrow=ndraws.gibbs,ncol=V,
-                                             dimnames=list(NULL,word.names))
-    final.param.list$mu.param.vecs <- array(NA,dim=c(V,K,ndraws.gibbs),
-                                            dimnames=list(word.names,topic.names,NULL))
-    final.param.list$tau2.param.vecs <- array(NA,dim=c(V,nparents,ndraws.gibbs),
-                                              dimnames=list(word.names,parent.topic.names,NULL))
+    final.param.list$mu.corpus.vec <- matrix(NA,nrow=ndraws.gibbs,ncol=nwords.trace,
+                                             dimnames=list(NULL,word.names.trace))
+    final.param.list$mu.param.vecs <- array(NA,dim=c(nwords.trace,K,ndraws.gibbs),
+                                            dimnames=list(word.names.trace,topic.names,NULL))
+    final.param.list$tau2.param.vecs <- array(NA,dim=c(nwords.trace,nparents,ndraws.gibbs),
+                                              dimnames=list(word.names.trace,parent.topic.names,NULL))
     final.param.list$psi <- rep(NA,ndraws.gibbs)
     final.param.list$gamma <- rep(NA,ndraws.gibbs)
     final.param.list$nu <- rep(NA,ndraws.gibbs)
@@ -175,10 +183,15 @@ setup.final.param.list <- function(current.param.list,ndraws.gibbs,
   if(xi.update){
     # Set up place to store xi parameters
     # Pick random sample of docs to store
-    docs.sample <- sample.int(n=D,size=ndocs.sample)
-    doc.names.sample <- doc.names[docs.sample]
-    final.param.list$xi.param.vecs <- array(NA,dim=c(ndocs.sample,K,ndraws.gibbs),
-                                            dimnames=list(doc.names.sample,topic.names,NULL))
+    if(!is.null(ndocs.trace)){
+      docs.trace <- sample(x=doc.names,size=ndocs.trace,replace=FALSE)
+      doc.names.trace <- doc.names[docs.trace]
+    } else {
+      ndocs.trace <- D
+      doc.names.trace <- doc.names
+    }
+    final.param.list$xi.param.vecs <- array(NA,dim=c(ndocs.trace,K,ndraws.gibbs),
+                                            dimnames=list(doc.names.trace,topic.names,NULL))
     final.param.list$eta.vec <- matrix(NA,nrow=ndraws.gibbs,ncol=K,
                                        dimnames=list(NULL,topic.names))
     if(current.param.list$full.Sigma){
@@ -197,9 +210,10 @@ store.param.draws <- function(i,current.param.list,final.param.list,
 
   if(tree.update){
     # Store tree parameters
-    final.param.list$mu.corpus.vec[i,] <- current.param.list$mu.corpus.vec
-    final.param.list$mu.param.vecs[,,i] <- current.param.list$mu.param.vecs
-    final.param.list$tau2.param.vecs[,,i] <- current.param.list$tau2.param.vecs
+    words.trace <- names(final.param.list$mu.corpus.vec)
+    final.param.list$mu.corpus.vec[i,] <- current.param.list$mu.corpus.vec[words.trace]
+    final.param.list$mu.param.vecs[,,i] <- current.param.list$mu.param.vecs[words.trace,]
+    final.param.list$tau2.param.vecs[,,i] <- current.param.list$tau2.param.vecs[words.trace,]
     final.param.list$psi[i] <- current.param.list$psi
     final.param.list$gamma[i] <- current.param.list$gamma
     final.param.list$nu[i] <- current.param.list$nu
@@ -208,8 +222,8 @@ store.param.draws <- function(i,current.param.list,final.param.list,
 
   if(xi.update){
     # Store xi parameters
-    docs.sample <- rownames(final.param.list$xi.param.vecs[,,1])
-    final.param.list$xi.param.vecs[,,i] <- current.param.list$xi.param.vecs[docs.sample,]
+    docs.trace <- rownames(final.param.list$xi.param.vecs[,,1])
+    final.param.list$xi.param.vecs[,,i] <- current.param.list$xi.param.vecs[docs.trace,]
     final.param.list$lambda2[i] <- current.param.list$lambda2
     final.param.list$eta.vec[i,] <- current.param.list$eta.vec
 
@@ -223,7 +237,7 @@ store.param.draws <- function(i,current.param.list,final.param.list,
 
 
 # Function to update posterior expectation of parameters
-update.average.params <- function(i,current.param.list,final.param.list,
+update.average.params <- function(i,current.param.list,ave.param.list=list(),
                                   update="tree",hparam.outlist=NULL){
 
   # Get relative weights
@@ -232,47 +246,58 @@ update.average.params <- function(i,current.param.list,final.param.list,
   
   if(update=="tree"){
     if(i==1){
-      final.param.list$mu.param.vecs <- current.param.list$mu.param.vecs
-      final.param.list$mu.corpus.vec <- current.param.list$mu.corpus.vec
-      final.param.list$tau2.param.vecs <- current.param.list$tau2.param.vecs
+      ave.param.list$mu.param.vecs <- current.param.list$mu.param.vecs
+      ave.param.list$mu.corpus.vec <- current.param.list$mu.corpus.vec
+      ave.param.list$tau2.param.vecs <- current.param.list$tau2.param.vecs
     } else {
-      final.param.list$mu.param.vecs <- weight.current*final.param.list$mu.param.vecs +
+      ave.param.list$mu.param.vecs <- weight.current*ave.param.list$mu.param.vecs +
         weight.new*current.param.list$mu.param.vecs
-      final.param.list$mu.corpus.vec <- weight.current*final.param.list$mu.corpus.vec
+      ave.param.list$mu.corpus.vec <- weight.current*ave.param.list$mu.corpus.vec +
         weight.new*current.param.list$mu.corpus.vec
-      final.param.list$tau2.param.vecs <- weight.current*final.param.list$tau2.param.vecs
+      ave.param.list$tau2.param.vecs <- weight.current*ave.param.list$tau2.param.vecs +
         weight.new*current.param.list$tau2.param.vecs
     }
-      
-      
-    } else if(update=="xi"){
-      #print(head(final.param.list$xi.param.list))
-      if(i==1){
-        final.param.list$xi.param.list <- current.param.list$xi.param.list
-      } else {
-        doc.ids <- names(current.param.list$xi.param.list)
-        final.param.list$xi.param.list <- lapply(doc.ids,function(doc.id){
-          weight.current*final.param.list$xi.param.list[[doc.id]] +
-          weight.new*current.param.list$xi.param.list[[doc.id]]})
-        names(final.param.list$xi.param.list) <- doc.ids
-      }
+
+    
+  } else if(update=="xi"){
+    if(i==1){
+      ave.param.list$xi.param.vecs <- current.param.list$xi.param.vecs
+    } else {
+      ave.param.list$xi.param.vecs <- weight.current*ave.param.list$xi.param.vecs +
+        weight.new*current.param.list$xi.param.vecs
+    }
+  
+    ## } else if(update=="xi"){
+    ##   #print(head(ave.param.list$xi.param.list))
+    ##   if(i==1){
+    ##     ave.param.list$xi.param.list <- current.param.list$xi.param.list
+    ##   } else {
+    ##     doc.ids <- names(current.param.list$xi.param.list)
+    ##     ave.param.list$xi.param.list <- lapply(doc.ids,function(doc.id){
+    ##       weight.current*ave.param.list$xi.param.list[[doc.id]] +
+    ##       weight.new*current.param.list$xi.param.list[[doc.id]]})
+    ##     names(ave.param.list$xi.param.list) <- doc.ids
+    ##   }
         
         
-    } else if(update=="hparam"){
+    } else if(update=="hparam") {
         if(i==1){
-          final.param.list$psi <- hparam.outlist$psi
-          final.param.list$gamma <- hparam.outlist$gamma
-          final.param.list$nu <- hparam.outlist$nu
-          final.param.list$sigma2 <- hparam.outlist$sigma2
+          ave.param.list$psi <- hparam.outlist$psi
+          ave.param.list$gamma <- hparam.outlist$gamma
+          ave.param.list$nu <- hparam.outlist$nu
+          ave.param.list$sigma2 <- hparam.outlist$sigma2
+          ave.param.list$lambda2 <- hparam.outlist$lambda2
+          ave.param.list$eta.vec <- hparam.outlist$eta.vec
         } else {
-          final.param.list$psi <- c(final.param.list$psi,hparam.outlist$psi)
-          final.param.list$gamma <- c(final.param.list$gamma,hparam.outlist$gamma)
-          final.param.list$nu <- c(final.param.list$nu,hparam.outlist$nu)
-          final.param.list$sigma2 <- c(final.param.list$sigma2,hparam.outlist$sigma2)
+          ave.param.list$psi <- c(ave.param.list$psi,hparam.outlist$psi)
+          ave.param.list$gamma <- c(ave.param.list$gamma,hparam.outlist$gamma)
+          ave.param.list$nu <- c(ave.param.list$nu,hparam.outlist$nu)
+          ave.param.list$sigma2 <- c(ave.param.list$sigma2,hparam.outlist$sigma2)
+          ave.param.list$lambda2 <- c(ave.param.list$lambda2,hparam.outlist$lambda2)
         }
       }
 
-      return(final.param.list)
+      return(ave.param.list)
 }
 
 

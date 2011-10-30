@@ -31,7 +31,7 @@ nget_per100=10,debug=False):
       doc_id_list = doc_topic_dict[topic_str]
       ndocs = len(doc_id_list)
       # Get number of units sample for sure
-      divs_units = int(ndocs/nget_per100)
+      divs_units = int(ndocs/float(nget_per100))
       # Figure how how many fractional units left
       rem_units = ndocs % nget_per100
       prob_extra = float(rem_units)/nget_per100

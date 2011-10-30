@@ -4,7 +4,6 @@
 #out.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/"
 funct.dir <- "/n/home13/jbischof/reuters_prj/mmm_fit_code/mmm_fit_functions/"
 source(paste(funct.dir,"initialize_params.R",sep=""))
-source(paste(funct.dir,"initialize_mmm_params_simple.R",sep=""))
 source(paste(funct.dir,"process_obs_data.R",sep=""))
 source(paste(funct.dir,"tau2_hparam_update.R",sep=""))
 source(paste(funct.dir,"tau2_hparam_mcmc.R",sep=""))
@@ -118,7 +117,7 @@ out.job.lists <- get.job.lists.and.data(feature.count.list.orig=feature.count.li
                                         slave.file.root=slave.file.root,
                                         verbose=TRUE)
 tree.job.list <- out.job.lists$tree.job.list
-xi.job.list <- out.job.lists$theta.job.list
+xi.job.list <- out.job.lists$xi.job.list
 
 outfile.joblist <- paste(out.dir,"valid_fit_joblist.RData",sep="")
 save(tree.job.list,xi.job.list,file=outfile.joblist)

@@ -7,19 +7,22 @@
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "process_reuters_lda_data_train"
+#BSUB -J "reuters_mcmc_setup"
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
-partition=train
 cutoff=500
+nodes=40
 main_dir=/n/airoldifs1/jbischof/reuters_output/
-out_dir=${main_dir}mmm_raw_data/parsed_${partition}_data${cutoff}/
+out_dir=${main_dir}mmm_fits/fit_train${cutoff}/
+data_dir=${main_dir}mmm_raw_data/
+data_folder=parsed_train_data${cutoff}/
 
-# Create partition directory if doesn't already exist
+# Create output directory if doesn't already exist
 if [ ! -d $out_dir ]
 then
    mkdir $out_dir
 fi
 
-# Run python script
-python process_parse_lda_data.py $partition $cutoff $main_dir
+R --vanilla --no-save --args $nodes $out_dir $data_dir $data_folder $cutoff < reuters_mcmc_setup.R
+
+

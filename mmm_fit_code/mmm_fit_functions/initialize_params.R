@@ -1,4 +1,5 @@
 # Scripts to initialize model parameters from observed data
+library("Matrix")
 
 # Get parent.child.list from topic.address.book
 get.parent.child.list <- function(topic.address.book){
@@ -45,9 +46,11 @@ initialize.params <- function(feature.count.list,doc.count.list,
   names(topic.pos) <- topics
 
   # Load in initialized doc memb parameters
-  # Save theta.param.vecs in sparse representation
-  theta.param.vecs <- read.table(filename.theta.param.vecs,as.is=TRUE)
-  theta.param.vecs <- as(as.matrix(theta.param.vecs), "sparseMatrix")
+  # Thetas already saved in sparse representation
+  load(filename.theta.param.vecs)
+  ## # Save theta.param.vecs in sparse representation
+  ## theta.param.vecs <- read.table(filename.theta.param.vecs,as.is=TRUE)
+  ## theta.param.vecs <- as(as.matrix(theta.param.vecs), "sparseMatrix")
   # Make sure theta.param.vecs is in same order as doc.length.vec
   # so that exposure factor multiplication works
   theta.param.vecs <- theta.param.vecs[names(doc.length.vec),]
@@ -130,3 +133,102 @@ initialize.params <- function(feature.count.list,doc.count.list,
 }
 
 
+# Function to set blocks of jobs and output the document/word data
+# needed by each slave
+get.job.lists.and.data <- function(doc.count.list.orig,
+                                   doc.topic.list.orig,
+                                   doc.length.vec,
+                                   theta.param.vecs,
+                                   n.slaves,
+                                   feature.count.list.orig=NULL,
+                                   slave.file.root="slave_data",
+                                   verbose=FALSE,
+                                   classify=FALSE,
+                                   active.docs.only=FALSE){
+
+  # Get indexes to cycle through
+  if(!classify){word.ids <- names(feature.count.list.orig)}
+  doc.ids <- names(doc.count.list.orig)
+
+  if(active.docs.only){
+    # Figure out which theta.param.vecs need to be updated (have more than
+    # one active topic)
+    active.docs <- apply(theta.param.vecs,1,
+                         function(vec){length(which(vec>0))>1})
+    # Only update active docs
+    doc.ids <- doc.ids[active.docs]
+  }
+
+  # Get block sizes for parameters
+  #n.slaves <- mpi.comm.size(comm=0)-1
+  # Get block size for tree
+  if(!classify){n.words <- length(word.ids)
+                mpi.tree.block.size <- ceiling(n.words/n.slaves)}
+  # Get block size for xis
+  n.docs <- length(doc.ids)
+  mpi.xi.block.size <- ceiling(n.docs/n.slaves)
+
+  
+  # Divide list of tasks into blocks of mpi.xi.block.size chunks
+  # How many blocks?
+  remainder.xi <- n.docs %% mpi.xi.block.size > 0
+  njobs.xi <- trunc(n.docs/mpi.xi.block.size) +
+    ifelse(remainder.xi,1,0)
+
+  # Create job list for xis
+  xi.job.list <- list()
+  for(pos in 1:njobs.xi){
+    pos.do <- c(1:mpi.xi.block.size)+(pos-1)*mpi.xi.block.size
+    pos.do <- pos.do[pos.do <= n.docs]
+    xi.job.list[[toString(pos)]] <- doc.ids[pos.do]
+  }
+  
+  if(!classify){
+    # Divide list of tasks into blocks of mpi.tree.block.size chunks
+    # How many blocks?
+    remainder.tree <- n.words %% mpi.tree.block.size > 0
+    njobs.tree <- trunc(n.words/mpi.tree.block.size) +
+      ifelse(remainder.tree,1,0)
+    
+    # Create job list for tree 
+    tree.job.list <- list()
+    for(pos in 1:njobs.tree){
+      pos.do <- c(1:mpi.tree.block.size)+(pos-1)*mpi.tree.block.size
+      pos.do <- pos.do[pos.do <= n.words]
+      tree.job.list[[toString(pos)]] <- word.ids[pos.do]
+    }
+  }
+  
+  # Print worker assignments if desired
+  if(verbose){
+    if(!classify){
+      cat(paste(njobs.tree,"tree worker ids:\n"))
+      print(names(tree.job.list))
+  }
+    cat(paste(njobs.xi,"xi worker ids:\n"))
+    print(names(xi.job.list))
+  }
+  
+  # Now write a data file for each slave
+  for(slave.id in 1:n.slaves){
+    slave.id.str <- toString(slave.id)
+    file.out <- paste(slave.file.root,slave.id,".RData",sep="")
+    doc.count.list <- doc.count.list.orig[xi.job.list[[slave.id.str]]]
+    doc.topic.list <- doc.topic.list.orig[xi.job.list[[slave.id.str]]]
+
+    if(classify){save(doc.count.list,doc.topic.list,doc.length.vec,
+                      file=file.out)}
+    
+    if(!classify){feature.count.list <- feature.count.list.orig[tree.job.list[[slave.id.str]]]
+      save(doc.count.list,doc.topic.list,doc.length.vec,feature.count.list,
+           file=file.out)}
+      
+    ## save(feature.count.list,doc.count.list,doc.topic.list,
+    ##      doc.length.vec,file=file.out)
+  }
+  
+  out.list <- list(xi.job.list=xi.job.list)
+  if(!classify){out.list$tree.job.list <- tree.job.list}
+  
+  return(out.list)
+}

@@ -1,9 +1,11 @@
 # Master script to organize coordinate ascent algorithm for
-# mixed memb hierarchical poisson model
+# mixed memb hierarchical poisson model fit to Reuters training set
 
-t0 <-  proc.time()[3]
+# Extract the command line arguments for number of nodes and relevant folders
+args <- commandArgs(TRUE)
+dir.out <- args[1]
 
-# Load in initialization and fitting functions
+# Load in fitting functions
 funct.dir <- "/n/home13/jbischof/reuters_prj/mmm_fit_code/mmm_fit_functions/"
 source(paste(funct.dir,"initialize_params.R",sep=""))
 source(paste(funct.dir,"check_conv.R",sep=""))
@@ -23,11 +25,9 @@ source(paste(funct.dir,"indep_chain_metro.R",sep=""))
 source(paste(funct.dir,"case_control_samp.R",sep=""))
 source("/n/home13/jbischof/reuters_prj/hmc/hmc_functions.R")
 
-# Set up output directory
-args <- commandArgs(TRUE)
-out.dir <- args[1]
-#out.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/"
-
+## # Set up output directory
+## main.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/"
+## dir.out <- paste(main.dir,out.folder,sep="")
 
 # Start up MPI; get node rank
 source(paste(funct.dir,"mpi_admin.R",sep=""))
@@ -41,37 +41,47 @@ mpi.rank <- mpi.start.list$mpi.rank
 
 # Figure out if master or slave
 is.master <- mpi.rank == mpi.root
+  
+# Set up file to save current parameters as updating
+file.current.param.list <- paste(dir.out,"current_params.RData",sep="")
 
-# Set up file to save current/final parameters as updating
-file.current.param.list <- paste(out.dir,"current_params.RData",sep="")
-file.final.param.list <- paste(out.dir,"final_params_gibbs.RData",sep="")
 # Set up root of file for slave specific data
-slave.file.root <- paste(out.dir,"slave_data",sep="")
-
+slave.file.root <- paste(dir.out,"slave_data",sep="")
+  
 if(is.master){
   # Load in initialized parameters
-  outfile.initial <- paste(out.dir,"initialized_train_params.RData",sep="")
-  load(outfile.initial)
+  # If already have results from previous run, start from there
+  is.initialized <- length(grep(pattern="current_params.RData",x=dir(dir.out))) > 0
+  #is.initialized <- FALSE
+  if(is.initialized){load(file.current.param.list)
+                     cat("Parameters from old run loaded\n")
+  } else {
+  # Else load up initialized parameters
+    outfile.initial <- paste(dir.out,"initialized_params.RData",sep="")
+    load(outfile.initial)
+  }
   
   # Load in job lists
-  outfile.joblist <- paste(out.dir,"valid_fit_joblist.RData",sep="")
+  outfile.joblist <- paste(dir.out,"fit_joblist.RData",sep="")
   load(outfile.joblist)
 }
 
 
-# Load in topic address book
-topic.address.book <- read.table("mmm_topic_address_book.txt",
+# Load in data address book
+topic.address.book <- read.table("reuters_topic_address_book.txt",
                                  header=TRUE,as.is=TRUE)
 
 
-# If using MPI, get the master and slave nodes working
+
+# Get the master and slave nodes working
 if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
                             file.current.param.list=file.current.param.list,
                             slave.file.root=slave.file.root)
+               
 } else {
   final.param.list <- hpd.gibbs.sampler(current.param.list=current.param.list,
                                         topic.address.book=topic.address.book,
-                                        ndraws.gibbs=100,
+                                        ndraws.gibbs=2500,
                                         verbose=FALSE,
                                         print.iter=TRUE,
                                         debug=FALSE,
@@ -80,8 +90,6 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
                                         file.current.param.list=file.current.param.list,
                                         file.final.param.list=file.final.param.list)
 }
-
-
 
 # Save output
 if(is.master){
@@ -101,5 +109,3 @@ if(is.master){
 
 # Close down mpi
 mpi.admin("close")
-
-
