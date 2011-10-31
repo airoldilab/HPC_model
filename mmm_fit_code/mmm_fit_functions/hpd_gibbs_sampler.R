@@ -160,9 +160,8 @@ setup.final.param.list <- function(current.param.list,ndraws.gibbs,
 
   if(tree.update){
     if(!is.null(nwords.trace)){
-      # Pick random sample of words to store
-      words.trace <- sample(x=word.names,size=nwords.trace,replace=FALSE)
-      word.names.trace <- word.names[words.trace]
+      # Pick random sample of words to store if requested
+      word.names.trace <- sample(x=word.names,size=nwords.trace,replace=FALSE)
     } else {
       nwords.trace <- V
       word.names.trace <- word.names
@@ -182,10 +181,9 @@ setup.final.param.list <- function(current.param.list,ndraws.gibbs,
 
   if(xi.update){
     # Set up place to store xi parameters
-    # Pick random sample of docs to store
+    # Pick random sample of docs to store if requested
     if(!is.null(ndocs.trace)){
-      docs.trace <- sample(x=doc.names,size=ndocs.trace,replace=FALSE)
-      doc.names.trace <- doc.names[docs.trace]
+      doc.names.trace <- sample(x=doc.names,size=ndocs.trace,replace=FALSE)
     } else {
       ndocs.trace <- D
       doc.names.trace <- doc.names
@@ -210,7 +208,7 @@ store.param.draws <- function(i,current.param.list,final.param.list,
 
   if(tree.update){
     # Store tree parameters
-    words.trace <- names(final.param.list$mu.corpus.vec)
+    words.trace <- colnames(final.param.list$mu.corpus.vec)
     final.param.list$mu.corpus.vec[i,] <- current.param.list$mu.corpus.vec[words.trace]
     final.param.list$mu.param.vecs[,,i] <- current.param.list$mu.param.vecs[words.trace,]
     final.param.list$tau2.param.vecs[,,i] <- current.param.list$tau2.param.vecs[words.trace,]

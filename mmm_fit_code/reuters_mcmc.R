@@ -3,7 +3,7 @@
 
 # Extract the command line arguments for number of nodes and relevant folders
 args <- commandArgs(TRUE)
-dir.out <- args[1]
+out.dir <- args[1]
 
 # Load in fitting functions
 funct.dir <- "/n/home13/jbischof/reuters_prj/mmm_fit_code/mmm_fit_functions/"
@@ -27,7 +27,7 @@ source("/n/home13/jbischof/reuters_prj/hmc/hmc_functions.R")
 
 ## # Set up output directory
 ## main.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/"
-## dir.out <- paste(main.dir,out.folder,sep="")
+## out.dir <- paste(main.dir,out.folder,sep="")
 
 # Start up MPI; get node rank
 source(paste(funct.dir,"mpi_admin.R",sep=""))
@@ -43,26 +43,26 @@ mpi.rank <- mpi.start.list$mpi.rank
 is.master <- mpi.rank == mpi.root
   
 # Set up file to save current parameters as updating
-file.current.param.list <- paste(dir.out,"current_params.RData",sep="")
-
+file.current.param.list <- paste(out.dir,"current_params.RData",sep="")
+file.final.param.list <- paste(out.dir,"final_params_gibbs.RData",sep="")
 # Set up root of file for slave specific data
-slave.file.root <- paste(dir.out,"slave_data",sep="")
+slave.file.root <- paste(out.dir,"slave_data",sep="")
   
 if(is.master){
   # Load in initialized parameters
   # If already have results from previous run, start from there
-  is.initialized <- length(grep(pattern="current_params.RData",x=dir(dir.out))) > 0
+  is.initialized <- length(grep(pattern="current_params.RData",x=dir(out.dir))) > 0
   #is.initialized <- FALSE
   if(is.initialized){load(file.current.param.list)
                      cat("Parameters from old run loaded\n")
   } else {
   # Else load up initialized parameters
-    outfile.initial <- paste(dir.out,"initialized_params.RData",sep="")
+    outfile.initial <- paste(out.dir,"initialized_params.RData",sep="")
     load(outfile.initial)
   }
   
   # Load in job lists
-  outfile.joblist <- paste(dir.out,"fit_joblist.RData",sep="")
+  outfile.joblist <- paste(out.dir,"fit_joblist.RData",sep="")
   load(outfile.joblist)
 }
 
