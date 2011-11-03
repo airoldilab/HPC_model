@@ -104,8 +104,8 @@ get.data.for.xi <- function(doc.id,mu.param.vecs,
     
   xi.data.list <- list(counts.doc=counts.doc,I.doc.vec=I.doc.vec,
                        active.words=active.words,one.active=one.active,
-                       doc.id=doc.id,eta.vec=eta.vec,Sigma=Sigma,
-                       Sigma.inv=Sigma.inv,
+                       doc.id=doc.id,eta.vec=eta.vec,
+                       Sigma=Sigma,Sigma.inv=Sigma.inv,
                        case.control.correct=case.control.correct)
 
   if(!one.active){
@@ -131,11 +131,7 @@ get.data.for.xi <- function(doc.id,mu.param.vecs,
 # Current takes hessian of like as parameter --- will have to
 # get this numerically
 eval.xi.hessian <- function(Sigma.inv,hessian.like){
-
-  #print(head(hessian.like))
-  #print(head(Sigma.inv))
   hes <- hessian.like - Sigma.inv
-  
   return(hes)
 }
 
@@ -455,7 +451,7 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
                                one.active=one.active,active.only=active.only,
                                print.post.error=print.post.error)
   
-  # Check global convergence of theta.d if not classifying
+  # Check global convergence of xi.d if not classifying
   global.conv <- check.conv(old.param.vec=post.old,
                             new.param.vec=post.new,
                             reltol=1e-6)

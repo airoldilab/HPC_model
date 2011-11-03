@@ -65,7 +65,7 @@ if(use.true.params){
 if(!use.true.params){
   #filename.doc.xi <- paste(obs.data.dir,"doc_xi_list.RData",sep="")
   filename.eta.vec <- paste(obs.data.dir,"eta_vec.txt",sep="")
-  filename.theta.param.vecs <- paste(obs.data.dir,"initialized_theta.txt",sep="")
+  filename.theta.param.vecs <- paste(obs.data.dir,"initialized_theta_sparse.RData",sep="")
   filename.mu.param.vecs <- paste(obs.data.dir,"initialized_mu.txt",sep="")
   filename.mu.corpus.vec <- paste(obs.data.dir,"initialized_corpus_mu.txt",sep="")
   filename.tau2.vec <- paste(obs.data.dir,"initialized_tau2.txt",sep="")
@@ -85,7 +85,8 @@ if(!use.true.params){
                       topic.address.book=topic.address.book,
                       lambda2.start=5,
                       #scale.Sigma.0=4,
-                      #kappa=0.001,
+                      kappa.0=-1,
+                      omega2.0=0,
                       full.Sigma=FALSE)
   
   ## # For now, borrow hyperparameters from known values

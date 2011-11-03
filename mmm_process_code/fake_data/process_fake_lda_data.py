@@ -1,4 +1,5 @@
 import sys
+import os
 sys.path.append("/n/home13/jbischof/reuters_prj/mmm_process_code/mmm_process_functions/")
 from parse_lda_data import *
 from initialize_tree_params import *
@@ -37,11 +38,11 @@ outfilename_theta = out_dir + "initialized_theta.txt"
 # Functions
 
 ## Parse LDA data into format that R can read
-#parse_lda_data(infilename_lda, outfilename_doctopic, outfilename_doclength, \
-#infilename_word_candidates, outfilename_docwc, outfilename_featwc, \
-#outfilename_docxi, outfilename_eta, doctopic_dictname="doc.topic.list", \
-#docwc_dictname="doc.count.list", featwc_dictname="feature.count.list", \
-#docxi_dictname="doc.xi.list")
+parse_lda_data(infilename_lda, outfilename_doctopic, outfilename_doclength, \
+infilename_word_candidates, outfilename_docwc, outfilename_featwc, \
+outfilename_docxi, outfilename_eta, doctopic_dictname="doc.topic.list", \
+docwc_dictname="doc.count.list", featwc_dictname="feature.count.list", \
+docxi_dictname="doc.xi.list")
 
 # Parameter initialization only makes sense for training set
 if partition == "train":
@@ -51,3 +52,9 @@ if partition == "train":
    
    # Process theta
    initialize_theta_params(infilename_lda,infilename_tab,outfilename_theta)
+   
+   # Get theta in sparse format
+   source5 = "../mmm_process_functions/get_sparse_theta.R"
+   cmd5 = "Rscript " + source5 + " " + out_dir
+   check = os.system(cmd5)
+   if not check == 0: raise Exception("Error in " + source5)

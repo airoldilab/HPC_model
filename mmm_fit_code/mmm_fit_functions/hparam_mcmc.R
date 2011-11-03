@@ -49,7 +49,7 @@ hparam.draw <- function(current.param.list,tree.update=TRUE,
       xi.out <- xi.hparam.draw(xi.param.vecs=current.param.list$xi.param.vecs,
                                Sigma.old=current.param.list$Sigma,
                                D=D,K=K,full.Sigma=TRUE,
-                               kappa=current.param.list$kappa,
+                               kappa.0=current.param.list$kappa.0,
                                Sigma.0=current.param.list$Sigma.0)
       eta.vec.new <- xi.out$eta.vec
       Sigma.new <- xi.out$Sigma
@@ -57,16 +57,19 @@ hparam.draw <- function(current.param.list,tree.update=TRUE,
     } else {
       xi.out <- xi.hparam.draw(xi.param.vecs=current.param.list$xi.param.vecs,
                                lambda2.old=current.param.list$lambda2,
-                               D=D,K=K)
+                               kappa.0=current.param.list$kappa.0,
+                               omega2.0=current.param.list$omega2.0,
+                               D=D,K=K,full.Sigma=FALSE)
       eta.vec.new <- xi.out$eta.vec
       lambda2.new <- xi.out$lambda2
     }
+    
+    # Save draws in output list
+    out.list$eta.vec <- eta.vec.new
+    if(current.param.list$full.Sigma){out.list$Sigma <- Sigma.new
+    } else {out.list$lambda2 <- lambda2.new}
   }
 
-  out.list$eta.vec <- eta.vec.new
-
-  if(current.param.list$full.Sigma){out.list$Sigma <- Sigma.new
-  } else {out.list$lambda2 <- lambda2.new}
 
   return(out.list)
 }

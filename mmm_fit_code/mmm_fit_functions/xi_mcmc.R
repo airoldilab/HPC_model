@@ -124,10 +124,13 @@ hmc.xi <- function(job.id,ndraws,step.size,nsteps,
   # Extract xi prior parameters
   active.topics <- xi.data.list$active.topics
   one.active <- xi.data.list$one.active
-  eta.vec <- current.param.list$eta.vec[names(xi.d.old)]
-  lambda2 <- current.param.list$lambda2
-  Sigma <- lambda2*diag(length(xi.d.old))
-  Sigma.inv <- (1/lambda2)*diag(length(xi.d.old))
+  eta.vec <- xi.data.list$eta.vec
+  Sigma <- xi.data.list$Sigma
+  Sigma.inv <- xi.data.list$Sigma.inv
+  ## eta.vec <- current.param.list$eta.vec[names(xi.d.old)]
+  ## lambda2 <- current.param.list$lambda2
+  ## Sigma <- lambda2*diag(length(xi.d.old))
+  ## Sigma.inv <- (1/lambda2)*diag(length(xi.d.old))
 
   # Evaluate hessian at last draw position
   hes <- eval.xi.hessian(Sigma.inv=Sigma.inv,hessian.like=hessian.like)

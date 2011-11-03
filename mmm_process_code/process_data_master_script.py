@@ -2,6 +2,7 @@
 
 # Import modules
 import sys
+import os
 sys.path.append("/n/home13/jbischof/reuters_prj/mmm_process_code/mmm_process_functions/")
 from get_word_candidates import *
 from gen_train_test import *

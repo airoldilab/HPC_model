@@ -20,7 +20,7 @@ nchildren <- 4
 
 # Membership distribution
 # Use unrestricted covariance matrix?
-full.Sigma <- TRUE
+full.Sigma <- FALSE
 K <- count.active.topics(nlevels,nchildren)
 eta.vec <- rnorm(n=K)-3
 lambda2 <- 2

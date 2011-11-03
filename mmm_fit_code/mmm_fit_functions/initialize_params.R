@@ -29,7 +29,8 @@ initialize.params <- function(feature.count.list,doc.count.list,
                               corpus.topic="CORPUS",
                               lambda2.start=4,
                               scale.Sigma.0=4,
-                              kappa=10,
+                              kappa.0=10,
+                              omega2.0=10,
                               full.Sigma=FALSE){
   
   # Get list of topics and create theta vectors
@@ -118,7 +119,8 @@ initialize.params <- function(feature.count.list,doc.count.list,
                              psi=psi,gamma=sqrt(gamma2),
                              lambda2=lambda2.start,
                              full.Sigma=full.Sigma,Sigma=Sigma,
-                             Sigma.0=Sigma.0,kappa=kappa,
+                             Sigma.0=Sigma.0,kappa.0=kappa.0,
+                             omega2.0=omega2.0,
                              eta.vec=eta.vec,
                              nu=nu,sigma2=sigma2,
                              parent.child.list=parent.child.list)
