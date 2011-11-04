@@ -69,8 +69,8 @@ current.param.list <-
                     corpus.topic="CORPUS",
                     topic.address.book=topic.address.book,
                     lambda2.start=12,
-                    kappa.0=10,
-                    omega2.0=10,
+                    kappa.0=-1,
+                    omega2.0=0,
                     full.Sigma=FALSE)
 
 outfile.initial <- paste(dir.out,"initialized_params.RData",sep="")

@@ -23,7 +23,7 @@ nchildren <- 4
 full.Sigma <- FALSE
 K <- count.active.topics(nlevels,nchildren)
 eta.vec <- rnorm(n=K)-3
-lambda2 <- 2
+lambda2 <- 20
 if(full.Sigma){
   # Start with correlation matrix
   cor.mat <- diag(K)

@@ -17,7 +17,7 @@ hpd.gibbs.sampler <- function(current.param.list,
                               Ndoc.case.control=NULL,
                               Nfeat.case.control=NULL,
                               nwords.trace=50,ndocs.trace=50,
-                              ndraws.save.final=5){
+                              ndraws.save=5){
 
   # Set up schedule for updating hessian
   hes.sched <- sqrt.seq.sched(1,ndraws.gibbs,Nupdate.hes)
@@ -27,6 +27,7 @@ hpd.gibbs.sampler <- function(current.param.list,
                                              ndraws.gibbs=ndraws.gibbs,
                                              tree.update=tree.update,xi.update=xi.update,
                                              nwords.trace=nwords.trace,ndocs.trace=ndocs.trace)
+  ave.param.list <- list()
   
   # Send out signal to slaves to load up their data
   n.slaves <- mpi.comm.size(0)
@@ -35,10 +36,8 @@ hpd.gibbs.sampler <- function(current.param.list,
 
   # Write out initial current.param.list
   save(current.param.list,file=file.current.param.list)
-  #cat(sprintf("\nNode %s\n",toString(mpi.comm.rank(0))))
-  #print(gc())
 
-  # Cycle through independent sets of draws
+  # Cycle through blocks of draws
   for(i in 1:ndraws.gibbs){
     if(print.iter){cat(paste("\nGlobal iteration",i,"\n"))}
 
@@ -108,13 +107,21 @@ hpd.gibbs.sampler <- function(current.param.list,
     # Store the latest draws
     final.param.list <- store.param.draws(i=i,current.param.list=current.param.list,
                                           final.param.list=final.param.list,
-                                          #hparam.outlist=hparam.outlist,
                                           tree.update=tree.update,xi.update=xi.update)
+
+    # Update desired expectations
+    ave.param.list <- update.average.params(i=i,current.param.list=current.param.list,
+                                            ave.param.list=ave.param.list,
+                                            tree.update=tree.update,xi.update=xi.update)
     
-    # Write out new final.param.list every ndraws.save.final draws
-    if(i %% ndraws.save.final == 0){save(final.param.list,file=file.final.param.list)}
+    # Write out new final.param.list and ave.param.list every ndraws.save draws
+    if(i %% ndraws.save == 0){
+      save(final.param.list,file=file.final.param.list)
+      save(ave.param.list,file=file.ave.param.list)
+    }
   }
 
+  
   # Tell worker nodes to exit
   master.exit.fn()
 
@@ -235,14 +242,14 @@ store.param.draws <- function(i,current.param.list,final.param.list,
 
 
 # Function to update posterior expectation of parameters
-update.average.params <- function(i,current.param.list,ave.param.list=list(),
-                                  update="tree",hparam.outlist=NULL){
+update.average.params <- function(i,current.param.list,ave.param.list,
+                                  tree.update=TRUE,xi.update=TRUE){
 
   # Get relative weights
   weight.current <- (i-1)/i
   weight.new <- 1/i
   
-  if(update=="tree"){
+  if(tree.update){
     if(i==1){
       ave.param.list$mu.param.vecs <- current.param.list$mu.param.vecs
       ave.param.list$mu.corpus.vec <- current.param.list$mu.corpus.vec
@@ -255,59 +262,47 @@ update.average.params <- function(i,current.param.list,ave.param.list=list(),
       ave.param.list$tau2.param.vecs <- weight.current*ave.param.list$tau2.param.vecs +
         weight.new*current.param.list$tau2.param.vecs
     }
-
     
-  } else if(update=="xi"){
+    # Update phis
+    phi.param.vecs <- get.phi.vec(mu.param.vecs=current.param.list$mu.param.vecs,
+                                  parent.child.list=current.param.list$parent.child.list)
+    if(i==1){ave.param.list$phi.param.vecs <- phi.param.vecs
+    } else {
+      ave.param.list$phi.param.vecs <- weight.current*ave.param.list$phi.param.vecs +
+        weight.new*phi.param.vecs
+    }}
+    
+            
+  if(xi.update){
     if(i==1){
       ave.param.list$xi.param.vecs <- current.param.list$xi.param.vecs
     } else {
       ave.param.list$xi.param.vecs <- weight.current*ave.param.list$xi.param.vecs +
         weight.new*current.param.list$xi.param.vecs
-    }
-  
-    ## } else if(update=="xi"){
-    ##   #print(head(ave.param.list$xi.param.list))
-    ##   if(i==1){
-    ##     ave.param.list$xi.param.list <- current.param.list$xi.param.list
-    ##   } else {
-    ##     doc.ids <- names(current.param.list$xi.param.list)
-    ##     ave.param.list$xi.param.list <- lapply(doc.ids,function(doc.id){
-    ##       weight.current*ave.param.list$xi.param.list[[doc.id]] +
-    ##       weight.new*current.param.list$xi.param.list[[doc.id]]})
-    ##     names(ave.param.list$xi.param.list) <- doc.ids
-    ##   }
-        
-        
-    } else if(update=="hparam") {
-        if(i==1){
-          ave.param.list$psi <- hparam.outlist$psi
-          ave.param.list$gamma <- hparam.outlist$gamma
-          ave.param.list$nu <- hparam.outlist$nu
-          ave.param.list$sigma2 <- hparam.outlist$sigma2
-          ave.param.list$lambda2 <- hparam.outlist$lambda2
-          ave.param.list$eta.vec <- hparam.outlist$eta.vec
-        } else {
-          ave.param.list$psi <- c(ave.param.list$psi,hparam.outlist$psi)
-          ave.param.list$gamma <- c(ave.param.list$gamma,hparam.outlist$gamma)
-          ave.param.list$nu <- c(ave.param.list$nu,hparam.outlist$nu)
-          ave.param.list$sigma2 <- c(ave.param.list$sigma2,hparam.outlist$sigma2)
-          ave.param.list$lambda2 <- c(ave.param.list$lambda2,hparam.outlist$lambda2)
-        }
-      }
-
-      return(ave.param.list)
+    }}
+    
+  return(ave.param.list)
 }
 
 
-  ## # If using MPI and request "best" blocksize, calibrate here
-  ## if(all(use.mpi,any(mpi.tree.block.size=="best",mpi.theta.block.size=="best"))){
-  ##   n.slaves <- mpi.comm.size(comm=0)-1
-  ##   if(mpi.tree.block.size=="best"){
-  ##     n.words <- length(word.ids)
-  ##     mpi.tree.block.size <- ceiling(n.words/n.slaves)
-  ##   }
-  ##   if(mpi.theta.block.size=="best"){
-  ##     n.docs <- length(doc.ids)
-  ##     mpi.theta.block.size <- ceiling(n.docs/n.slaves)
-  ##   }
-  ## }
+# Function to calculate quantities of interest for each draw of the Gibbs sampler
+# Phi vectors
+get.phi.vec <- function(mu.param.vecs,parent.child.list){
+  # Set up phi matrix
+  phi.param.vecs <- matrix(NA,ncol=ncol(mu.param.vecs),
+                           nrow=nrow(mu.param.vecs),
+                           dimnames=dimnames(mu.param.vecs))
+  # Need rates
+  beta.param.vecs <- exp(mu.param.vecs)
+  # Get list of parents
+  parents <- names(parent.child.list)
+  # Get vector of phis and plug in phi.param.vecs
+  for (parent in parents) {
+    child.list <- parent.child.list[[parent]]
+    beta.child <- beta.param.vecs[,child.list]
+    beta.child.sum <- rowSums(beta.child)
+    phi.param.vecs[,child.list] <- beta.child/beta.child.sum
+  }
+
+  return(phi.param.vecs)
+}

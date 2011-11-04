@@ -49,7 +49,7 @@ gen.theta.vec <- function(xi.vec,I.vec,gp="dirichlet"){
     xi.vec[I.vec==0] <- 0
     theta.vec <- xi.vec/sum(xi.vec)
   } else if(any(gp=="logit.norm",gp=="mv.probit")){
-    exp.xi.vec <- exp(xi.vec)
+    exp.xi.vec <- exp(xi.vec-mean(xi.vec))
     # Zero out inactive topics
     exp.xi.vec[I.vec==0] <- 0
     theta.vec <- exp.xi.vec/sum(exp.xi.vec)

@@ -44,6 +44,7 @@ is.master <- mpi.rank == mpi.root
   
 # Set up file to save current parameters as updating
 file.current.param.list <- paste(out.dir,"current_params.RData",sep="")
+file.ave.param.list <- paste(out.dir,"ave_params_gibbs.RData",sep="")
 file.final.param.list <- paste(out.dir,"final_params_gibbs.RData",sep="")
 # Set up root of file for slave specific data
 slave.file.root <- paste(out.dir,"slave_data",sep="")
@@ -88,6 +89,7 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
                                         tree.job.list=tree.job.list,
                                         xi.job.list=xi.job.list,
                                         file.current.param.list=file.current.param.list,
+                                        file.ave.param.list=file.ave.param.list,
                                         file.final.param.list=file.final.param.list)
 }
 
