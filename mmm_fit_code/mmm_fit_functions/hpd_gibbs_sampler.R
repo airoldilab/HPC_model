@@ -299,7 +299,7 @@ get.phi.vec <- function(mu.param.vecs,parent.child.list){
   # Get vector of phis and plug in phi.param.vecs
   for (parent in parents) {
     child.list <- parent.child.list[[parent]]
-    beta.child <- beta.param.vecs[,child.list]
+    beta.child <- beta.param.vecs[,child.list,drop=FALSE]
     beta.child.sum <- rowSums(beta.child)
     phi.param.vecs[,child.list] <- beta.child/beta.child.sum
   }
