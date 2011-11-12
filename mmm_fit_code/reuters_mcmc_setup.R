@@ -68,7 +68,8 @@ current.param.list <-
                     filename.doc.xi=NULL,
                     corpus.topic="CORPUS",
                     topic.address.book=topic.address.book,
-                    lambda2.start=12,
+                    lambda2.start=35,
+                    eta.offset=-5,
                     kappa.0=-1,
                     omega2.0=0,
                     full.Sigma=FALSE)
@@ -83,6 +84,7 @@ out.job.lists <- get.job.lists.and.data(feature.count.list.orig=feature.count.li
                                         doc.topic.list.orig=doc.topic.list,
                                         doc.length.vec=doc.length.vec,
                                         theta.param.vecs=current.param.list$theta.param.vecs,
+                                        mu.corpus.vec=current.param.list$mu.corpus.vec,
                                         n.slaves=n.slaves,
                                         slave.file.root=slave.file.root,
                                         verbose=TRUE)

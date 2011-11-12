@@ -28,46 +28,46 @@ initialize.params <- function(feature.count.list,doc.count.list,
                               filename.theta.param.vecs,
                               corpus.topic="CORPUS",
                               lambda2.start=4,
+                              eta.offset=0,
                               scale.Sigma.0=4,
                               kappa.0=10,
                               omega2.0=10,
                               full.Sigma=FALSE){
   
-  # Get list of topics and create theta vectors
+  # Get list of topics
   topics <- topic.address.book[,"topic"]
   tree.parent.topics <- unique(topic.address.book[,"parent"])
   corpus.topic.pos <- which(tree.parent.topics==corpus.topic)
 
-  doc.names <- names(doc.count.list)
-  D <- length(doc.names)
+  # Get basic info on corpus
+  word.ids <- names(feature.count.list)
+  doc.ids <- names(doc.length.vec)
+  D <- length(doc.ids)
   K <- length(topics)
   K.parent <- length(tree.parent.topics)
-  V <- length(feature.count.list)
+  V <- length(word.ids)
   topic.pos <- 1:K
   names(topic.pos) <- topics
 
   # Load in initialized doc memb parameters
   # Thetas already saved in sparse representation
   load(filename.theta.param.vecs)
-  ## # Save theta.param.vecs in sparse representation
-  ## theta.param.vecs <- read.table(filename.theta.param.vecs,as.is=TRUE)
-  ## theta.param.vecs <- as(as.matrix(theta.param.vecs), "sparseMatrix")
   # Make sure theta.param.vecs is in same order as doc.length.vec
   # so that exposure factor multiplication works
-  theta.param.vecs <- theta.param.vecs[names(doc.length.vec),]
+  theta.param.vecs <- theta.param.vecs[doc.ids,]
 
   
   # Load in initialized tree parameters
   
   # Load in initialized mu param vecs
   mu.param.vecs <- as.matrix(read.table(filename.mu.param.vecs,as.is=TRUE,
-                                        row.names = 1,header=TRUE))
+                                        row.names = 1,header=TRUE))[word.ids,]
   # Load in initialized corpus mu vector
   mu.corpus.vec <- as.matrix(read.table(filename.mu.corpus.vec,
-                                  as.is = TRUE, row.names = 1))[,1]
+                                  as.is = TRUE, row.names = 1))[,1][word.ids]
   # Load in initialized tau2 vector
   tau2.vec <- as.matrix(read.table(filename.tau2.vec,
-                                   as.is = TRUE, row.names = 1))[,1]
+                                   as.is = TRUE, row.names = 1))[,1][word.ids]
   # Create tau2.param.vecs
   tau2.param.vecs <- matrix(tau2.vec,nrow=V,ncol=K.parent,byrow=FALSE,
                             dimnames=list(names(tau2.vec),tree.parent.topics))
@@ -78,13 +78,13 @@ initialize.params <- function(feature.count.list,doc.count.list,
                                   as.is = TRUE, row.names = 1))[,1]
   # Make sure eta.vec in same order as thetas
   eta.vec <- eta.vec[colnames(theta.param.vecs)]
+  # Use eta offset
+  eta.vec <- eta.vec + eta.offset
   
   # Initialize xi.param.vecs with eta.vec; again, rows should be same
   # order as doc.length.vec
   xi.param.vecs <- matrix(eta.vec,nrow=D,ncol=K,byrow=TRUE,
-                          dimnames=list(names(doc.length.vec),
-                            names(eta.vec)))
-  
+                          dimnames=list(doc.ids,names(eta.vec)))
 
   # Get the parent.child.list
   parent.child.list <- get.parent.child.list(topic.address.book)
@@ -141,6 +141,7 @@ get.job.lists.and.data <- function(doc.count.list.orig,
                                    doc.topic.list.orig,
                                    doc.length.vec,
                                    theta.param.vecs,
+                                   mu.corpus.vec,
                                    n.slaves,
                                    feature.count.list.orig=NULL,
                                    slave.file.root="slave_data",
@@ -149,8 +150,8 @@ get.job.lists.and.data <- function(doc.count.list.orig,
                                    active.docs.only=FALSE){
 
   # Get indexes to cycle through
-  if(!classify){word.ids <- names(feature.count.list.orig)}
-  doc.ids <- names(doc.count.list.orig)
+  if(!classify){word.ids <- names(mu.corpus.vec)}
+  doc.ids <- rownames(theta.param.vecs)
 
   if(active.docs.only){
     # Figure out which theta.param.vecs need to be updated (have more than
@@ -221,12 +222,11 @@ get.job.lists.and.data <- function(doc.count.list.orig,
     if(classify){save(doc.count.list,doc.topic.list,doc.length.vec,
                       file=file.out)}
     
-    if(!classify){feature.count.list <- feature.count.list.orig[tree.job.list[[slave.id.str]]]
+    if(!classify){
+      feature.count.list <- feature.count.list.orig[tree.job.list[[slave.id.str]]]
       save(doc.count.list,doc.topic.list,doc.length.vec,feature.count.list,
-           file=file.out)}
-      
-    ## save(feature.count.list,doc.count.list,doc.topic.list,
-    ##      doc.length.vec,file=file.out)
+           file=file.out)
+    }
   }
   
   out.list <- list(xi.job.list=xi.job.list)
