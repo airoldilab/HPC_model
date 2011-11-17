@@ -141,8 +141,8 @@ get.job.lists.and.data <- function(doc.count.list.orig,
                                    doc.topic.list.orig,
                                    doc.length.vec,
                                    theta.param.vecs,
-                                   mu.corpus.vec,
                                    n.slaves,
+                                   mu.corpus.vec=NULL,
                                    feature.count.list.orig=NULL,
                                    slave.file.root="slave_data",
                                    verbose=FALSE,
@@ -177,7 +177,7 @@ get.job.lists.and.data <- function(doc.count.list.orig,
   remainder.xi <- n.docs %% mpi.xi.block.size > 0
   njobs.xi <- trunc(n.docs/mpi.xi.block.size) +
     ifelse(remainder.xi,1,0)
-
+  
   # Create job list for xis
   xi.job.list <- list()
   for(pos in 1:njobs.xi){
@@ -207,7 +207,7 @@ get.job.lists.and.data <- function(doc.count.list.orig,
     if(!classify){
       cat(paste(njobs.tree,"tree worker ids:\n"))
       print(names(tree.job.list))
-  }
+    }
     cat(paste(njobs.xi,"xi worker ids:\n"))
     print(names(xi.job.list))
   }
@@ -218,9 +218,8 @@ get.job.lists.and.data <- function(doc.count.list.orig,
     file.out <- paste(slave.file.root,slave.id,".RData",sep="")
     doc.count.list <- doc.count.list.orig[xi.job.list[[slave.id.str]]]
     doc.topic.list <- doc.topic.list.orig[xi.job.list[[slave.id.str]]]
-
-    if(classify){save(doc.count.list,doc.topic.list,doc.length.vec,
-                      file=file.out)}
+    
+    if(classify){save(doc.count.list,doc.length.vec,doc.topic.list,file=file.out)}
     
     if(!classify){
       feature.count.list <- feature.count.list.orig[tree.job.list[[slave.id.str]]]

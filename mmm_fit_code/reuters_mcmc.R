@@ -1,7 +1,7 @@
 # Master script to organize coordinate ascent algorithm for
 # mixed memb hierarchical poisson model fit to Reuters training set
 
-# Extract the command line arguments for number of nodes and relevant folders
+# Extract the command line arguments for relevant folders
 args <- commandArgs(TRUE)
 out.dir <- args[1]
 

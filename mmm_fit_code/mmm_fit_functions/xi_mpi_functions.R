@@ -102,7 +102,7 @@ xi.slave.fn <- function(current.param.list,doc.length.vec,
         
         # Get new xi draw
         #cat(paste("Slave",worker.id,"optimizing doc",doc.id,"\n"))
-        hmc.draws <- hmc.xi(job.id=doc.id,ndraws=1,step.size=0.2,nsteps=10,
+        hmc.draws <- hmc.xi(job.id=doc.id,ndraws=1,step.size=0.15,nsteps=10,
                             current.param.list=current.param.list,
                             doc.length.vec=doc.length.vec,
                             doc.topic.list=doc.topic.list,

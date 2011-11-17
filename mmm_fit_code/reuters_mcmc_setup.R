@@ -11,7 +11,6 @@ data.dir <- args[3]
 data.folder <- args[4]
 cutoff <- args[5]
 obs.data.dir <- paste(data.dir,data.folder,sep="")
-print(paste("obs.data.dir: ",obs.data.dir))
 
 # Load in fitting functions
 funct.dir <- "/n/home13/jbischof/reuters_prj/mmm_fit_code/mmm_fit_functions/"

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "get_reuters_pred_labels_setup"
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+cutoff=500
+nodes=40
+partition=valid
+main_dir=/n/airoldifs1/jbischof/reuters_output/
+out_dir=${main_dir}mmm_class_out/${partition}_slave_data${cutoff}/
+fit_dir=${main_dir}mmm_fits/fit_train${cutoff}/
+data_dir=${main_dir}mmm_raw_data/
+data_folder=parsed_${partition}_data${cutoff}/
+
+# Create output directory if doesn't already exist
+if [ ! -d $out_dir ]
+then
+   mkdir $out_dir
+fi
+
+R --vanilla --no-save --args $nodes $out_dir $data_dir $data_folder $fit_dir $cutoff < get_reuters_pred_labels_setup.R
+
+

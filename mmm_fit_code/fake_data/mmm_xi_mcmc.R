@@ -100,6 +100,9 @@ job.id <- "7773"
 # One active topic
 job.id <- "6412"
 
+# Testing out classifier?
+classify <- TRUE
+
 # Check optimizer
 system.time(
 optim.xi.out <- optim.xi(job.id=job.id,
@@ -108,7 +111,8 @@ optim.xi.out <- optim.xi(job.id=job.id,
                          doc.count.list=doc.count.list,
                          doc.topic.list=doc.topic.list,
                          xi.data.out=TRUE,hessian=TRUE,
-                         active.only=FALSE,Nfeat.case.control=NULL)
+                         active.only=FALSE,Nfeat.case.control=NULL,
+                         classify=classify)
             )
 
 xi.opt <- optim.xi.out$xi.d
@@ -155,21 +159,28 @@ hist(metroh.out$draws[,2],'fd')
 # Try HMC
 library("MCMCpack")
 system.time(
-hmc.draws <- hmc.xi(job.id=job.id,ndraws=1000,step.size=0.2,nsteps=5,
+hmc.draws <- hmc.xi(job.id=job.id,ndraws=100,step.size=0.05,nsteps=30,
                     current.param.list=current.param.list,
                     doc.length.vec=doc.length.vec,
                     doc.topic.list=doc.topic.list,
                     doc.count.list=doc.count.list,
                     hessian.like=hes.like,
                     active.only=FALSE,
-                    debug=FALSE)
+                    debug=FALSE,classify=classify)
             )
-#index <- 7
+index <- 7
 active.topics <- xi.data.list$active.topics
 index <- active.topics[1]
 plot(hmc.draws[,index],type="b")
 hist(hmc.draws[,index],'fd')
 acf(hmc.draws[,index])
+
+if(classify){
+  mean.draws <- colMeans(hmc.draws)
+  doc.topics <- doc.topic.list[[job.id]]
+  pos.doc.topic <- sapply(doc.topics,function(topic){which(names(mean.draws)==topic)})
+  boxplot(mean.draws[pos.doc.topic],mean.draws[-c(pos.doc.topic)])
+}
 
 # Put HMC draws in current.param.list and run HMC again
 current.param.list$xi.param.vecs[job.id,] <- hmc.draws[nrow(hmc.draws),]

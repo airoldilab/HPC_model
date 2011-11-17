@@ -32,18 +32,26 @@ get.data.for.xi <- function(doc.id,mu.param.vecs,
       I.doc.vec <- rep(0,K)
       names(I.doc.vec) <- topics
       I.doc.vec[active.topics] <- 1
-  }} else {active.topics <- topics}
+    }
+    # Figure out if only one topic active
+    one.active <- length(active.topics) == 1
 
-  # Figure out if only one topic active
-  one.active <- length(active.topics) == 1
+    # Otherwise if classifying, don't need active topics
+  } else {
+    active.topics <- topics
+    I.doc.vec <- rep(1,K)
+    names(I.doc.vec) <- topics
+    one.active <- FALSE
+  }
 
   # Only need to evaluate word likelihood if more than
   # one topic active
   if(!one.active){
     # mu.param.vecs is FxK
     # Only want mus from active topics
-    if(classify){mu.param.mat <- mu.param.vecs
-               } else {mu.param.mat <- mu.param.vecs[,active.topics]}
+    #if(classify){mu.param.mat <- mu.param.vecs
+    #           } else {mu.param.mat <- mu.param.vecs[,active.topics]}
+    mu.param.mat <- mu.param.vecs[,active.topics]
     X.d <- doc.norm.length*exp(mu.param.mat)
     # Get active rows of X matrix
     X.d.active <- X.d[active.words,,drop=FALSE]
@@ -103,10 +111,12 @@ get.data.for.xi <- function(doc.id,mu.param.vecs,
   }
     
   xi.data.list <- list(counts.doc=counts.doc,I.doc.vec=I.doc.vec,
+                       active.topics=active.topics,
                        active.words=active.words,one.active=one.active,
                        doc.id=doc.id,eta.vec=eta.vec,
                        Sigma=Sigma,Sigma.inv=Sigma.inv,
-                       case.control.correct=case.control.correct)
+                       case.control.correct=case.control.correct,
+                       classify=classify)
 
   if(!one.active){
     xi.data.list$X.d <- X.d
@@ -120,8 +130,6 @@ get.data.for.xi <- function(doc.id,mu.param.vecs,
     xi.data.list$weight.inactive.samp <- out.case.cont$weight.inactive.samp
     xi.data.list$inactive.samp <- out.case.cont$inactive.samp
   }
-
-  if(!classify){xi.data.list$active.topics <- active.topics}
 
   return(xi.data.list)
 }
@@ -141,13 +149,10 @@ xi.w.log.like <- function(xi.vec,xi.data.list,active.only=TRUE){
   # Get theta vector
   if(active.only){
     theta.d <- get.theta.from.xi(xi.vec)
-    ## theta.d <- exp(xi.vec)/sum(exp(xi.vec))
   } else {  
     active.topics <- xi.data.list$active.topics
     xi.vec.active <- xi.vec[active.topics]
     theta.d <- get.theta.from.xi(xi.vec.active)
-    ## active.exp.xi <- exp(xi.vec[active.topics])
-    ## theta.d <- active.exp.xi/sum(active.exp.xi)
   }
   
   # Unpack needed data
@@ -191,13 +196,10 @@ xi.w.log.like.grad <- function(xi.vec,xi.data.list,active.only=TRUE){
   # Get theta vector
   if(active.only){
     theta.d <- get.theta.from.xi(xi.vec)
-    ## theta.d <- exp(xi.vec)/sum(exp(xi.vec))
     xi.vec.active <- xi.vec
   } else {  
     active.topics <- xi.data.list$active.topics
     xi.vec.active <- xi.vec[active.topics]
-    ## active.exp.xi <- exp(xi.vec.active)
-    ## theta.d <- active.exp.xi/sum(active.exp.xi)
     theta.d <- get.theta.from.xi(xi.vec.active)
   }
   
@@ -297,7 +299,8 @@ xi.log.prior.grad <- function(xi.vec,eta.vec,Sigma.inv){
 # Function to evaluate log conditional posterior of xi.d
 xi.log.posterior <- function(par,xi.data.list,eta.vec,Sigma.inv,
                              one.active=FALSE,active.only=TRUE,
-                             debug=FALSE,print.post.error=FALSE){
+                             debug=FALSE,print.post.error=FALSE,
+                             classify=FALSE){
 
   # Get xi.vec
   xi.vec <- par
@@ -309,16 +312,19 @@ xi.log.posterior <- function(par,xi.data.list,eta.vec,Sigma.inv,
   if(!one.active){
     # Get log like of words
     w.log.like <- xi.w.log.like(xi.vec=xi.vec,xi.data.list=xi.data.list,
-                                active.only=active.only)}
+                                active.only=active.only)
+  } else {w.log.like <- 0}
   
-  # Get log like of labels
-  label.log.like <- xi.label.log.like(xi.vec=xi.vec,I.vec=I.doc.vec)
+  # Get log like of labels if not classifying
+  if(!classify){
+    label.log.like <- xi.label.log.like(xi.vec=xi.vec,I.vec=I.doc.vec)
+  } else {label.log.like <- 0}
   
   # Get log prior of xi
   log.prior <- xi.log.prior(xi.vec=xi.vec,eta.vec=eta.vec,Sigma.inv=Sigma.inv)
   
   # Get log posterior
-  log.posterior <- ifelse(one.active,0,w.log.like) + label.log.like + log.prior
+  log.posterior <- w.log.like + label.log.like + log.prior
 
   if(print.post.error){
     if(any(is.na(log.posterior),log.posterior==Inf,log.posterior==-Inf,
@@ -338,7 +344,8 @@ xi.log.posterior <- function(par,xi.data.list,eta.vec,Sigma.inv,
 # Function to evaluate gradient of log conditional posterior of xi.d
 xi.log.post.gradient <- function(par,xi.data.list,eta.vec,Sigma.inv,
                                  one.active=FALSE,active.only=TRUE,
-                                 debug=FALSE,print.post.error=FALSE){
+                                 debug=FALSE,print.post.error=FALSE,
+                                 classify=FALSE){
 
   # Get xi.vec
   xi.vec <- par
@@ -350,17 +357,19 @@ xi.log.post.gradient <- function(par,xi.data.list,eta.vec,Sigma.inv,
   if(!one.active){
     # Get gradient of log like of words
     w.log.like.grad <- xi.w.log.like.grad(xi.vec=xi.vec,xi.data.list=xi.data.list,
-                                          active.only=active.only)}
+                                          active.only=active.only)
+  } else {w.log.like.grad <- 0}
 
-  # Get gradient of log like of labels
-  label.log.like.grad <- xi.label.log.like.grad(xi.vec=xi.vec,I.vec=I.doc.vec)
+  # Get gradient of log like of labels if not classifying
+  if(!classify){
+    label.log.like.grad <- xi.label.log.like.grad(xi.vec=xi.vec,I.vec=I.doc.vec)
+  } else {label.log.like.grad <- 0}
 
   # Get gradient of log prior
   log.prior.grad <- xi.log.prior.grad(xi.vec=xi.vec,eta.vec=eta.vec,Sigma.inv=Sigma.inv)
 
   # Get gradient of log posterior
-  gradient <- label.log.like.grad + log.prior.grad
-  if(!one.active){gradient <- gradient + w.log.like.grad}
+  gradient <- w.log.like.grad + label.log.like.grad + log.prior.grad
 
   if(print.post.error){
     if(any(any(is.na(gradient)),any(gradient==Inf),any(gradient==-Inf),
@@ -391,7 +400,6 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
   if(active.only){xi.d.old <- current.param.list$xi.param.list[[job.id]]
   } else {
     xi.d.old <- current.param.list$xi.param.vecs[job.id,]
-    ## xi.d.old <- xi.d.old + rnorm(n=length(xi.d.old),sd=2)
   }
 
   # Construct data needed for optimization
@@ -405,7 +413,8 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
                                   doc.count.list=doc.count.list,
                                   doc.topic.list=doc.topic.list,
                                   active.only=active.only,
-                                  Nfeat.case.control=Nfeat.case.control)
+                                  Nfeat.case.control=Nfeat.case.control,
+                                  classify=classify)
 
   # Extract xi prior parameters
   active.topics <- xi.data.list$active.topics
@@ -413,16 +422,12 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
   eta.vec <- xi.data.list$eta.vec
   Sigma <- xi.data.list$Sigma
   Sigma.inv <- xi.data.list$Sigma.inv
-  ## eta.vec <- current.param.list$eta.vec[names(xi.d.old)]
-  ## lambda2 <- current.param.list$lambda2
-  ## Sigma <- lambda2*diag(length(xi.d.old))
-  ## Sigma.inv <- (1/lambda2)*diag(length(xi.d.old))
   
-  # Evaluate posterior at old values
-  post.old <- xi.log.posterior(par=xi.d.old,xi.data.list=xi.data.list,
-                               eta.vec=eta.vec,Sigma.inv=Sigma.inv,
-                               one.active=one.active,active.only=active.only,
-                               print.post.error=print.post.error)
+  ## # Evaluate posterior at old values
+  ## post.old <- xi.log.posterior(par=xi.d.old,xi.data.list=xi.data.list,
+  ##                              eta.vec=eta.vec,Sigma.inv=Sigma.inv,
+  ##                              one.active=one.active,active.only=active.only,
+  ##                              print.post.error=print.post.error)
   
   # Optimize log posterior with BFGS
   optim.out <- optim(par=xi.d.old,fn=xi.log.posterior,
@@ -433,7 +438,8 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
                      method="L-BFGS-B",upper=250,lower=-250,
                      gr=xi.log.post.gradient,
                      debug=debug,hessian=hessian,
-                     print.post.error=print.post.error)
+                     print.post.error=print.post.error,
+                     classify=classify)
 
   # Check that optim converged
   optim.conv <- optim.out$convergence == 0
@@ -443,25 +449,21 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
   }
   
   xi.d.new <- optim.out$par
-  if(hessian){hessian.xi <- optim.out$hessian}
   
-  # Evaluate posterior at new values
-  post.new <- xi.log.posterior(par=xi.d.new,xi.data.list=xi.data.list,
-                               eta.vec=eta.vec,Sigma.inv=Sigma.inv,
-                               one.active=one.active,active.only=active.only,
-                               print.post.error=print.post.error)
+  ## # Evaluate posterior at new values
+  ## post.new <- xi.log.posterior(par=xi.d.new,xi.data.list=xi.data.list,
+  ##                              eta.vec=eta.vec,Sigma.inv=Sigma.inv,
+  ##                              one.active=one.active,active.only=active.only,
+  ##                              print.post.error=print.post.error)
   
-  # Check global convergence of xi.d if not classifying
-  global.conv <- check.conv(old.param.vec=post.old,
-                            new.param.vec=post.new,
-                            reltol=1e-6)
+  ## # Check global convergence of xi.d if not classifying
+  ## global.conv <- check.conv(old.param.vec=post.old,
+  ##                           new.param.vec=post.new,
+  ##                           reltol=1e-6)
   
-  out.list <- list(xi.d=xi.d.new,global.conv=global.conv)
-  if(hessian){out.list$hessian <- hessian.xi}
+  out.list <- list(xi.d=xi.d.new)
+  if(hessian){out.list$hessian <- optim.out$hessian}
   if(xi.data.out){
-    ## xi.data.list$eta.vec <- eta.vec
-    ## xi.data.list$Sigma.inv <- Sigma.inv
-    ## xi.data.list$Sigma <- Sigma
     out.list$xi.data.list <- xi.data.list}
   
   return(out.list)

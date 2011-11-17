@@ -96,17 +96,22 @@ hmc.xi <- function(job.id,ndraws,step.size,nsteps,
                    doc.length.vec,doc.topic.list,active.only=FALSE,
                    last.draw=FALSE,hessian.like=NULL,
                    hes.diag=FALSE,Nfeat.case.control=NULL,
-                   debug=FALSE){
+                   debug=FALSE,classify=FALSE,pos.start=NULL){
 
   # Make sure using job.id as a string
   job.id <- as.character(job.id)
+
+  # If given starting position, use that
+  if(!is.null(pos.start)){
+    xi.d.old <- pos.start
+    #names(xi.d.old) <- colnames(current.param.list$xi.param.vecs)
   
-  # Get old xi.d from last update
-  if(active.only){xi.d.old <- current.param.list$xi.param.list[[job.id]]
+  # Else get old xi.d from last update
   } else {
-    xi.d.old <- current.param.list$xi.param.vecs[job.id,]
-    ## xi.d.old <- xi.d.old + rnorm(n=length(xi.d.old),sd=2)
-  }
+    if(active.only){xi.d.old <- current.param.list$xi.param.list[[job.id]]
+    } else {
+      xi.d.old <- current.param.list$xi.param.vecs[job.id,]
+    }}
 
   # Construct data needed for optimization
   xi.data.list <- get.data.for.xi(doc.id=job.id,
@@ -119,7 +124,8 @@ hmc.xi <- function(job.id,ndraws,step.size,nsteps,
                                   doc.count.list=doc.count.list,
                                   doc.topic.list=doc.topic.list,
                                   active.only=active.only,
-                                  Nfeat.case.control=Nfeat.case.control)
+                                  Nfeat.case.control=Nfeat.case.control,
+                                  classify=classify)
 
   # Extract xi prior parameters
   active.topics <- xi.data.list$active.topics
@@ -127,10 +133,6 @@ hmc.xi <- function(job.id,ndraws,step.size,nsteps,
   eta.vec <- xi.data.list$eta.vec
   Sigma <- xi.data.list$Sigma
   Sigma.inv <- xi.data.list$Sigma.inv
-  ## eta.vec <- current.param.list$eta.vec[names(xi.d.old)]
-  ## lambda2 <- current.param.list$lambda2
-  ## Sigma <- lambda2*diag(length(xi.d.old))
-  ## Sigma.inv <- (1/lambda2)*diag(length(xi.d.old))
 
   # Evaluate hessian at last draw position
   hes <- eval.xi.hessian(Sigma.inv=Sigma.inv,hessian.like=hessian.like)
@@ -147,7 +149,8 @@ hmc.xi <- function(job.id,ndraws,step.size,nsteps,
                        M.sd=M.sd,M.inv=M.inv,M.diag=M.diag,
                        debug=debug,xi.data.list=xi.data.list,
                        eta.vec=eta.vec,Sigma.inv=Sigma.inv,
-                       one.active=one.active,active.only=active.only)
+                       one.active=one.active,active.only=active.only,
+                       classify=classify)
   
   # Only return last draw if requested
   if(last.draw){out.hmc <- out.hmc[nrow(out.hmc),]}
