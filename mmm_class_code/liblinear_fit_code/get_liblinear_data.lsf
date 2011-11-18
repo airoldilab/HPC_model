@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# QUEUE
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "get_liblinear_data"
+
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+main_dir=/n/airoldifs1/jbischof/reuters_output/
+raw_data_dir=${main_dir}mmm_raw_data/
+out_dir=${raw_data_dir}liblinear_data/
+
+# Create output directory if doesn't already exist
+if [ ! -d $out_dir ]
+then
+   mkdir $out_dir
+fi
+
+python ../mmm_class_functions/get_liblinear_data.py $main_dir

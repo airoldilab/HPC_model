@@ -11,13 +11,14 @@
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
-nodes=40
+nodes=1000
 partition=valid
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 out_dir=${main_dir}mmm_class_out/${partition}_slave_data${cutoff}/
 fit_dir=${main_dir}mmm_fits/fit_train${cutoff}/
 data_dir=${main_dir}mmm_raw_data/
 data_folder=parsed_${partition}_data${cutoff}/
+cleanup_file=0
 
 # Create output directory if doesn't already exist
 if [ ! -d $out_dir ]
@@ -25,6 +26,6 @@ then
    mkdir $out_dir
 fi
 
-R --vanilla --no-save --args $nodes $out_dir $data_dir $data_folder $fit_dir $cutoff < get_reuters_pred_labels_setup.R
+R --vanilla --no-save --args $nodes $out_dir $data_dir $data_folder $fit_dir $cutoff $cleanup_file < get_reuters_pred_labels_setup.R
 
 

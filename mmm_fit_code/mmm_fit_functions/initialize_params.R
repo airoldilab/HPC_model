@@ -140,18 +140,15 @@ initialize.params <- function(feature.count.list,doc.count.list,
 get.job.lists.and.data <- function(doc.count.list.orig,
                                    doc.topic.list.orig,
                                    doc.length.vec,
-                                   theta.param.vecs,
                                    n.slaves,
-                                   mu.corpus.vec=NULL,
+                                   doc.ids,
+                                   word.ids=NULL,
+                                   theta.param.vecs=NULL,
                                    feature.count.list.orig=NULL,
                                    slave.file.root="slave_data",
                                    verbose=FALSE,
                                    classify=FALSE,
                                    active.docs.only=FALSE){
-
-  # Get indexes to cycle through
-  if(!classify){word.ids <- names(mu.corpus.vec)}
-  doc.ids <- rownames(theta.param.vecs)
 
   if(active.docs.only){
     # Figure out which theta.param.vecs need to be updated (have more than

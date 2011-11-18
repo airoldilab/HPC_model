@@ -78,12 +78,15 @@ save(current.param.list,file=outfile.initial)
 
 
 # Create job lists and output data for slaves
+doc.ids <- rownames(current.param.list$theta.param.vecs)
+word.ids <- names(current.param.list$mu.corpus.vec)
 out.job.lists <- get.job.lists.and.data(feature.count.list.orig=feature.count.list,
                                         doc.count.list.orig=doc.count.list,
                                         doc.topic.list.orig=doc.topic.list,
                                         doc.length.vec=doc.length.vec,
-                                        theta.param.vecs=current.param.list$theta.param.vecs,
-                                        mu.corpus.vec=current.param.list$mu.corpus.vec,
+                                        word.ids=word.ids,doc.ids=doc.ids,
+                                        #theta.param.vecs=current.param.list$theta.param.vecs,
+                                        #mu.corpus.vec=current.param.list$mu.corpus.vec,
                                         n.slaves=n.slaves,
                                         slave.file.root=slave.file.root,
                                         verbose=TRUE)

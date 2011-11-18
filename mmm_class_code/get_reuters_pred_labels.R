@@ -3,19 +3,22 @@
 
 # Extract the command line arguments for number of nodes and relevant folders
 args <- commandArgs(TRUE)
-out.dir <- args[1]
+print(args)
+slave.data.dir <- args[1]
 slave.id <- args[2]
 cutoff <- args[3]
+out.dir <- args[4]
 
-cutoff <- 500
-partition <- "valid"
-main.dir <- "/n/airoldifs1/jbischof/reuters_output/"
-out.dir <- paste(main.dir,"mmm_class_out/",partition,
-                 "_slave_data",cutoff,"/",sep="")
-slave.id <- 1
+## cutoff <- 500
+## partition <- "valid"
+## main.dir <- "/n/airoldifs1/jbischof/reuters_output/"
+## slave.data.dir <- paste(main.dir,"mmm_class_out/",partition,
+##                  "_slave_data",cutoff,"/",sep="")
+## slave.id <- 1
 
 
 # Load in fitting functions
+sprintft <- function(x,...){return(paste(date(),": ",sprintf(x,...),sep=""))}
 funct.dir <- "/n/home13/jbischof/reuters_prj/mmm_fit_code/mmm_fit_functions/"
 source(paste(funct.dir,"initialize_params.R",sep=""))
 source(paste(funct.dir,"xi_update.R",sep=""))
@@ -28,44 +31,92 @@ class.funct.dir <- "/n/home13/jbischof/reuters_prj/mmm_class_code/mmm_class_func
 source(paste(class.funct.dir,"label_import_sampler.R",sep=""))
 
 # Load parameter list
-file.current.param.list <- paste(out.dir,"current_param_list.RData",sep="")
+file.current.param.list <- paste(slave.data.dir,"current_param_list.RData",sep="")
 load(file.current.param.list)
 
 # Load slave data
-file.slave.data <- paste(out.dir,"slave_data",slave.id,".RData",sep="")
+file.slave.data <- paste(slave.data.dir,"slave_data",slave.id,".RData",sep="")
 load(file.slave.data)
 
 # Load job list
-file.joblist <- paste(out.dir,"fit_joblist.RData",sep="")
+file.joblist <- paste(slave.data.dir,"class_joblist.RData",sep="")
 load(file.joblist)
 
 # Load in data address book
 topic.address.book <- read.table("reuters_topic_address_book.txt",
                                  header=TRUE,as.is=TRUE)
 
+# Get list of job.ids
 job.ids <- xi.job.list[[slave.id]]
-job.id <- job.ids[1]
-current.param.list$full.Sigma <- FALSE
 
-# Get importance samples of label vector
-debug(label.import.sampler)
-import.out <- label.import.sampler(job.id=job.id,current.param.list=current.param.list,
-                                   doc.length.vec=doc.length.vec,
-                                   doc.count.list=doc.count.list,
-                                   ndraws.import.samp=200,
-                                   return.expect=FALSE,
-                                   hmc.step.size=0.025,
-                                   hmc.nsteps=50,
-                                   hmc.debug=FALSE)
+# Write output lines to file
+file.out <- paste(out.dir,"class_data",slave.id,".txt",sep="")
+# Make sure file doesn't already exist; if so, don't repeat jobs
+if(file.exists(file.out)){
+  old.file <- read.table(file.out,header=FALSE,as.is=TRUE,row.names=1,sep="\t")
+  done.docs <- rownames(old.file)
+  for( doc.id in done.docs ){
+    if(doc.id %in% job.ids){
+      id.pos <- which(job.ids == doc.id)
+      job.ids <- job.ids[-id.pos]
+    }
+  }
+  ## system(paste("rm",file.out))
+}
 
-plot(xi.draws[,10],type="b")
-plot(colMeans(xi.draws))
-col.means <- colMeans(xi.draws)
-plot(col.means[order(col.means)])
-col.means[order(col.means)]
-
-plot(xi.draws[,"GSPO"],type="b")
-plot(xi.draws[,"C151"],type="b")
+## # Write header for output file
+## topics <- colnames(current.param.list$xi.param.vecs)
+## midstr <- paste(c("",topics),collapse="\t")
+## outstr <- paste(midstr,"\n",sep="")
+## cat(outstr,file=file.out,append=TRUE)
 
 
-doc.topic.list[[job.id]]
+
+# Get importance samples of label vector or xi vector
+n.docs <- length(job.ids)
+for( job.id in job.ids ) {
+
+  # Time update
+  t0 <-  proc.time()[3]
+        
+  import.out <- label.import.sampler(job.id=job.id,current.param.list=current.param.list,
+                                     doc.length.vec=doc.length.vec,
+                                     doc.count.list=doc.count.list,
+                                     ndraws.import.samp=300,
+                                     return.expect=TRUE,
+                                     hmc.burnin=100,
+                                     hmc.step.size=0.015,
+                                     hmc.nsteps=50,
+                                     hmc.debug=FALSE)
+  
+  midstr <- paste(import.out$xi.expect,collapse="\t")
+  outstr <- paste(job.id,"\t",midstr,"\n",sep="")
+  cat(outstr,file=file.out,append=TRUE)
+
+  # Record time diff
+  t1 <- proc.time()[3]
+
+  cat(sprintft("Finished doc %s in %f seconds\n",job.id,t1-t0))
+}
+
+
+
+
+
+
+## attach(import.out)
+## plot(xi.draws[,10],type="b")
+## xi.opt[order(xi.opt)]
+## col.means <- colMeans(xi.draws)
+## plot(col.means[order(col.means)])
+## col.means[order(col.means)]
+
+## plot(xi.draws[,"C15"],type="b")
+## plot(xi.draws[,"MCAT"],type="b")
+
+## hist(xi.draws[,"M11"],'fd')
+
+## doc.topic.list[[job.id]]
+
+## I.expect[order(I.expect)]
+## xi.expect[order(xi.expect)]

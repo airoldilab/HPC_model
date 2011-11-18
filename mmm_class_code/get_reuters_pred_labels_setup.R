@@ -11,6 +11,7 @@ data.dir <- args[3]
 data.folder <- args[4]
 fit.dir <- args[5]
 cutoff <- args[6]
+cleanup.file <- args[7]
 obs.data.dir <- paste(data.dir,data.folder,sep="")
 
 # Load in fitting functions
@@ -48,9 +49,11 @@ doc.topic.list <- data.list$doc.topic.list
 # Note that ave.param.list missing a lot of information in current.param.list
 filename.ave.params <- paste(fit.dir,"ave_params_gibbs_class.RData",sep="")
 load(filename.ave.params)
+Sigma.cor <- cor(ave.param.list$xi.param.vecs)
 current.param.list <- gen.class.data(ave.param.list=ave.param.list,
                                      doc.ids=names(doc.count.list),
                                      topic.address.book=topic.address.book)
+current.param.list$Sigma.cor <- Sigma.cor
 
 # Output current.param.list to file
 outfile.current.param.list <- paste(out.dir,"current_param_list.RData",sep="")
@@ -62,11 +65,12 @@ doc.count.list <- remove.new.words(doc.count.list=doc.count.list,
 
 
 # Create job lists and output data for slaves
+if(!cleanup.file=="0"){doc.ids <- rownames(current.param.list$theta.param.vecs)
+ } else {doc.ids <- read.table(cleanup.file,header=FALSE,as.is=TRUE)[,1]}
 out.job.lists <- get.job.lists.and.data(doc.count.list.orig=doc.count.list,
                                         doc.topic.list.orig=doc.topic.list,
                                         doc.length.vec=doc.length.vec,
-                                        theta.param.vecs=current.param.list$theta.param.vecs,
-                                        mu.corpus.vec=current.param.list$mu.corpus.vec,
+                                        doc.ids=doc.ids,
                                         n.slaves=n.slaves,slave.file.root=slave.file.root,
                                         verbose=TRUE,classify=TRUE)
 

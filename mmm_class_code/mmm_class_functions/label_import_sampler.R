@@ -22,10 +22,18 @@ xi.prop.draw <- function(job.id,
                            active.only=FALSE,
                            classify=TRUE)
   
-  xi.opt <- optim.xi.out$xi.d
   xi.data.list <- optim.xi.out$xi.data.list
-  optim.hes <- optim.xi.out$hessian
-  hessian.like <- optim.hes + xi.data.list$Sigma.inv
+
+  # Use optim output only if converged; otherwise use prior
+  if(optim.xi.out$optim.conv){
+    xi.opt <- optim.xi.out$xi.d
+    xi.data.list <- optim.xi.out$xi.data.list
+    optim.hes <- optim.xi.out$hessian
+    hessian.like <- optim.hes + xi.data.list$Sigma.inv
+  } else {
+    xi.opt <- current.param.list$eta.vec
+    hessian.like <- 2*xi.data.list$Sigma.inv
+  }
   
   # Get samples from proposal distribution using HMC
   xi.draws <- hmc.xi(job.id=job.id,ndraws=ndraws.import.samp,
@@ -38,13 +46,13 @@ xi.prop.draw <- function(job.id,
                      Nfeat.case.control=NULL,
                      classify=TRUE,pos.start=xi.opt,
                      debug=hmc.debug)
-
+  
   # Remove burnin draws if requested
   if(!is.null(hmc.burnin)){xi.draws <- xi.draws[-c(1:hmc.burnin),]}
-
+  
   out.list <- list(xi.draws=xi.draws,xi.data.list=xi.data.list,
                    xi.opt=xi.opt)
-
+  
   return(out.list)
 }
 
@@ -67,8 +75,9 @@ label.prop.dens <- function(xi.vec,xi.data.list){
 label.target.dens <- function(xi.vec,I.vec,xi.data.list){
   # Modify xi.data.list with proposed labels
   active.topics <- xi.data.list$active.topics[I.vec == 1]
+  if(length(active.topics)==1){xi.data.list$one.active <- TRUE}
   xi.data.list$active.topics <- active.topics
-  xi.data.list$X.d <- xi.data.list$X.d[,active.topics]
+  xi.data.list$X.d <- xi.data.list$X.d[,active.topics,drop=FALSE]
 
   # Evaluate word log-likelihood
   w.like <- xi.w.log.like(xi.vec,xi.data.list,active.only=FALSE)
@@ -138,13 +147,18 @@ label.import.sampler <- function(job.id,current.param.list,
                                       I.draws=I.draws,
                                       xi.data.list=xi.data.list)
 
+  # Get normalized weights
+  weights <- exp(log.weights)
+  norm.weights <- weights/sum(weights)
+  
+  out.list <- list(I.draws=I.draws,xi.draws=xi.draws,xi.opt=xi.opt,
+                   log.weights=log.weights,norm.weights=norm.weights)
+
   # Return either expectation of label vector or posterior mode
   if(return.expect){
-    weights <- exp(log.weights)
-    norm.weights <- weights/sum(weights)
-    out.list <- colMeans(norm.weights*I.draws)
-  } else {
-    out.list <- list(draws=I.draws,log.weights=log.weights) }
+    out.list$I.expect <- colSums(norm.weights*I.draws)
+    out.list$xi.expect <- colSums(norm.weights*xi.draws)
+  }
   
   return(out.list)
 }

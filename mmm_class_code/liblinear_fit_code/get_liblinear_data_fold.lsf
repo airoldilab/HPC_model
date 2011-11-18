@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# QUEUE
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "get_liblinear_data[1-10]"
+
+# Options good for big job arrays
+#BSUB -r
+#BSUB -mig 30
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
+python ../mmm_class_functions/get_liblinear_data.py $main_dir

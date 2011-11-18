@@ -36,7 +36,7 @@ get.data.for.xi <- function(doc.id,mu.param.vecs,
     # Figure out if only one topic active
     one.active <- length(active.topics) == 1
 
-    # Otherwise if classifying, don't need active topics
+  # Otherwise if classifying, don't need active topics
   } else {
     active.topics <- topics
     I.doc.vec <- rep(1,K)
@@ -101,12 +101,17 @@ get.data.for.xi <- function(doc.id,mu.param.vecs,
       Sigma <- lambda2*diag(length(active.topics))
       Sigma.inv <- (1/lambda2)*diag(length(active.topics))
     }
+  # If not active.only, have full size Sigma matrix
   } else {
     if(full.Sigma){
       Sigma.inv <- solve(Sigma)
     } else {
-      Sigma <- lambda2*diag(length(topics))
-      Sigma.inv <- (1/lambda2)*diag(length(topics))
+      if(!is.null(current.param.list$Sigma.cor)){
+        Sigma.base <- current.param.list$Sigma.cor
+        Sigma.base.inv <- solve(current.param.list$Sigma.cor)
+      } else {Sigma.base <- Sigma.base.inv <- diag(length(topics))}
+      Sigma <- lambda2*Sigma.base
+      Sigma.inv <- (1/lambda2)*Sigma.base.inv
     }
   }
     
@@ -146,9 +151,16 @@ eval.xi.hessian <- function(Sigma.inv,hessian.like){
 
 xi.w.log.like <- function(xi.vec,xi.data.list,active.only=TRUE){
 
+  # Only one active topic?
+  one.active <- xi.data.list$one.active
+  
   # Get theta vector
   if(active.only){
     theta.d <- get.theta.from.xi(xi.vec)
+    
+  } else if(one.active){
+    theta.d <- 1
+    
   } else {  
     active.topics <- xi.data.list$active.topics
     xi.vec.active <- xi.vec[active.topics]
@@ -445,7 +457,7 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
   optim.conv <- optim.out$convergence == 0
   if(!optim.conv){
     optim.mes <- optim.out$message
-    warning(paste("Optim did not converge with message",optim.mes))  
+    warning(paste("Optim did not converge with message",optim.mes))
   }
   
   xi.d.new <- optim.out$par
@@ -461,7 +473,7 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
   ##                           new.param.vec=post.new,
   ##                           reltol=1e-6)
   
-  out.list <- list(xi.d=xi.d.new)
+  out.list <- list(xi.d=xi.d.new,optim.conv=optim.conv)
   if(hessian){out.list$hessian <- optim.out$hessian}
   if(xi.data.out){
     out.list$xi.data.list <- xi.data.list}
