@@ -16,7 +16,7 @@ python get_total_word_count.py $main_dir $cutoff
 python get_kept_stop_words.py $main_dir $cutoff
 
 # Step 3: Get top words for each topic according to phis, mus, and tau2s
-file_ave_params=${fit_dir}ave_params_gibbs.RData
+file_ave_params=${fit_dir}ave_params_gibbs_class.RData
 file_kept_word_stems=${analysis_dir}kept_word_id_stems${cutoff}.txt
 nwords_get=75
 Rscript find_top_phi_words.R $fit_dir $analysis_dir $file_ave_params $file_kept_word_stems $nwords_get

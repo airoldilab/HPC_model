@@ -38,9 +38,9 @@ reg.word.max.tau2 <- apply(reg.word.tau2,1,max)
 
 filename <- paste(analysis.dir,"by_stop_word_tau2_density_log.png",sep="")
 png(filename,width=7,height=7,units="in",res=300)
-plot(density(log(reg.word.max.tau2)),col="red",xlab="log tau2",
+plot(density(log(stop.word.max.tau2)),col="blue",lty=2,xlab="log tau2",
      main="Density of log tau2 for regular words v. stop words")
-lines(density(log(stop.word.max.tau2)),lty=2,col="blue")
+lines(density(log(reg.word.max.tau2)),lty=1,col="red")
 legend(x="topright",legend=c("regular words","stop words"),lty=c(1,2),
        col=c("red","blue"))
 dev.off()
