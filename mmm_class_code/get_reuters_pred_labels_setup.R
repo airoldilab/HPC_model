@@ -65,8 +65,8 @@ doc.count.list <- remove.new.words(doc.count.list=doc.count.list,
 
 
 # Create job lists and output data for slaves
-if(!cleanup.file=="0"){doc.ids <- rownames(current.param.list$theta.param.vecs)
- } else {doc.ids <- read.table(cleanup.file,header=FALSE,as.is=TRUE)[,1]}
+if(cleanup.file=="0"){doc.ids <- rownames(current.param.list$theta.param.vecs)
+ } else {doc.ids <- as.character(read.table(cleanup.file,header=FALSE,as.is=TRUE)[,1])}
 out.job.lists <- get.job.lists.and.data(doc.count.list.orig=doc.count.list,
                                         doc.topic.list.orig=doc.topic.list,
                                         doc.length.vec=doc.length.vec,

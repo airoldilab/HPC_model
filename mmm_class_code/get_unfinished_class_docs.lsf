@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# QUEUE
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "get_unfinished_class_docs"
+
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+partition=valid
+cutoff=500
+main_dir=/n/airoldifs1/jbischof/reuters_output/
+raw_data_dir=${main_dir}mmm_raw_data/
+class_dir=${main_dir}mmm_class_out/
+filename_lda=${raw_data_dir}/reuters_${partition}_ldaformat.txt
+filename_comp=${class_dir}${partition}_class_${cutoff}/final_class.txt
+outfilename=${class_dir}${partition}_class_${cutoff}/jobs_to_do.txt
+
+
+python mmm_class_functions/get_unfinished_class_docs.py $filename_lda $filename_comp $outfilename

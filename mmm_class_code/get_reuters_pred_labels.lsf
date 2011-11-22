@@ -7,7 +7,7 @@
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "get_reuters_pred_labels[1-1000]"
+#BSUB -J "get_reuters_pred_labels[1-500]"
 
 # THE OUTPUT FILES, I STRONGLY SUGGEST DUMPING THESE IN A SEPARATE DIRECTORY!
 #BSUB -o /n/home13/jbischof/jbischof/reuters_output/mmm_class_out/LSF_dump/out_%J.%I
@@ -22,7 +22,7 @@
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
-nodes=750
+nodes=500
 partition=valid
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 slave_data_dir=${main_dir}mmm_class_out/${partition}_slave_data${cutoff}/

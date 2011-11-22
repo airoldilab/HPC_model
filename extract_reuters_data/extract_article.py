@@ -3,9 +3,13 @@ import sys, os
 from collections import defaultdict
 from nltk import PorterStemmer
 import re
-#import string
+import string
 
-def article_extract(dataDir,outFilename):
+data_dir = sys.argv[1]
+outfilename = sys.argv[2]
+porter_stem = sys.argv[3]
+
+def article_extract(dataDir,outFilename,porter_stem=True):
    # Get list of files in dataDir
    if os.access(dataDir, os.F_OK):
       inList = os.listdir(dataDir)
@@ -18,8 +22,9 @@ def article_extract(dataDir,outFilename):
    # Open file for output
    outFile = open(outFilename, 'wb')
    
-   # Setup stemmer
-   porter = PorterStemmer()
+   if porter_stem:
+      # Setup stemmer
+      porter = PorterStemmer()
    
    # Error reporting
    out_error_name = "errors_extract_article.txt"
@@ -35,7 +40,8 @@ def article_extract(dataDir,outFilename):
          
          # Normalize words and count unique occurences
          ngrams = [ w.lower() for w in article.tokens ]
-         ngrams = [ porter.stem(w) for w in ngrams ]
+         if porter_stem:
+	    ngrams = [ porter.stem(w) for w in ngrams ]
          unique = set(ngrams)
          countList = [(u,ngrams.count(u)) for u in unique]
          
@@ -69,11 +75,14 @@ def article_extract(dataDir,outFilename):
    outFile.close()
 
 
+if __name__ == "__main__":
+   article_extract(data_dir,outfilename,porter_stem=porter_stem)
+
 # Set parameters
 #data_dir = "/n/scratch06/airoldi_scratch/jbischof/reuters_data"
 #dir_out = "/n/airoldifs1/jbischof/reuters_output/"
 # Change the directories for this trial run
-data_dir = "19960820_subset/"
-dir_out = "subset_output/"
-outfile_sax = dir_out + "reuters_stemmed_art_extract.txt"
-article_extract(data_dir,outfile_sax)
+#data_dir = "19960820_subset/"
+#dir_out = "subset_output/"
+#outfile_sax = dir_out + "reuters_stemmed_art_extract.txt"
+#article_extract(data_dir,outfile_sax)

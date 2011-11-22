@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#BSUB -q airoldi
+#BSUB -u jbischof@fas.harvard.edu
+#BSUB -J "extract_article"
+
+# Porter stemming?
+porter_stem=False
+
+data_dir=/n/airoldifs1/jbischof/reuters_data/
+outfilename=${data_dir}reuters_art_extract.txt
+
+python extract_article_stemmed.py $data_dir $outfilename $porter_stem
+

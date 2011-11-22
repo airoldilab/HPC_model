@@ -327,3 +327,53 @@ get.phi.vec <- function(mu.param.vecs,parent.child.list){
 
   return(phi.param.vecs)
 }
+
+
+get.phi.parent.vec <- function(mu.param.vecs,mu.corpus.vec,
+                               parent.child.list){
+  # Set up phi matrix
+  phi.parent.param.vecs <- matrix(NA,ncol=ncol(mu.param.vecs),
+                           nrow=nrow(mu.param.vecs),
+                           dimnames=dimnames(mu.param.vecs))
+  # Need rates
+  beta.param.vecs <- exp(mu.param.vecs)
+  # Get list of parents
+  parents <- names(parent.child.list)
+  # Get vector of phis and plug in phi.param.vecs
+  for (parent in parents) {
+    child.list <- parent.child.list[[parent]]
+    beta.child <- beta.param.vecs[,child.list]
+    if(parent=="CORPUS"){
+      beta.parent <- exp(mu.corpus.vec)
+    } else {beta.parent <- beta.param.vecs[,parent]}
+    denom <- beta.parent + beta.child
+    phi.parent.param.vecs[,child.list] <- beta.child/denom
+  }
+
+  return(phi.parent.param.vecs)
+}
+
+
+get.phi.ave.vec <- function(phi.param.vecs,phi.parent.param.vecs,
+                            parent.child.list){
+  
+  # Set up phi matrix
+  phi.ave.param.vecs <- matrix(NA,ncol=ncol(phi.param.vecs),
+                               nrow=nrow(phi.param.vecs),
+                               dimnames=dimnames(phi.param.vecs))
+
+  # Get list of parents
+  parents <- names(parent.child.list)
+  # Get vector of phis and plug in phi.param.vecs
+  for (parent in parents) {
+    child.list <- parent.child.list[[parent]]
+    nchild <- length(child.list)
+    weight.parent <- 1/nchild
+    weight.child <- 1 - weight.parent
+    phi <- phi.param.vecs[,child.list]
+    phi.parent <- phi.parent.param.vecs[,child.list]
+    phi.ave.param.vecs[,child.list] <- weight.parent*phi.parent + weight.child*phi
+  }
+
+  return(phi.ave.param.vecs)
+}
