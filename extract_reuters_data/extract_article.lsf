@@ -7,8 +7,9 @@
 # Porter stemming?
 porter_stem=False
 
-data_dir=/n/airoldifs1/jbischof/reuters_data/
-outfilename=${data_dir}reuters_art_extract.txt
+data_dir=/n/scratch06/airoldi_scratch/jbischof/reuters_data/
+out_dir=/n/airoldifs1/jbischof/reuters_output/
+outfilename=${out_dir}reuters_art_extract.txt
 
-python extract_article_stemmed.py $data_dir $outfilename $porter_stem
+python extract_functions/extract_article.py $data_dir $outfilename $porter_stem
 

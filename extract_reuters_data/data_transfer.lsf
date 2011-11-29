@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#BSUB -q airoldi
+#BSUB -u jbischof@fas.harvard.edu
+#BSUB -J "data_transfer"
+
+cp -r /n/scratch06/airoldi_scratch/jbischof/reuters_data/ -t /n/airoldifs1/jbischof/
+

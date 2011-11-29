@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#BSUB -q short_serial 
+#BSUB -q airoldi
 #BSUB -u jbischof@fas.harvard.edu
 #BSUB -J "get_lda_data"
 

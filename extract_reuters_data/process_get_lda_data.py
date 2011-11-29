@@ -2,6 +2,8 @@
 # into lda format data
 
 # Import modules
+import sys
+sys.path.append("/n/home13/jbischof/reuters_prj/extract_reuters_data/extract_functions/")
 import string
 from gen_lda_format import *
 from gen_word_dict import *
@@ -18,11 +20,13 @@ from clean_lda_data import *
 dir_out = "/n/airoldifs1/jbischof/reuters_output/"
 #dir_out = "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/"
 infile_sax = dir_out + "reuters_stemmed_art_extract.txt"
-infile_tdt = dir_out + "reuters_topic_codes.txt"
+infile_tdt = dir_out + "reuters_term_topic_codes.txt"
 outfile_lda = dir_out + "reuters_ldaformat.txt"
 outfile_swc = dir_out + "reuters_stemmed_wc.txt"
 outfile_dl = dir_out + "reuters_doc_summaries.txt"
 outfile_ds = dir_out + "doc_metadata.txt"
+
+# Currently missing step from original topic codes to terminal topic codes
 
 # Create dictionaries
 # Dictionary of all unique words in corpus (with ids) and dictionary
