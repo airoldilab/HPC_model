@@ -20,16 +20,19 @@ word.stem.table <- read.table(file.kept.word.stems,header=FALSE,
 kept.word.ids <- rownames(word.stem.table)
 phi.param.vecs <- ave.param.list$phi.param.vecs[kept.word.ids,]
 phi.word.ids <- rownames(phi.param.vecs)
+phi.parent.param.vecs <- ave.param.list$phi.parent.param.vecs[kept.word.ids,]
+phi.ave.param.vecs <- ave.param.list$phi.ave.param.vecs[kept.word.ids,]
 
-mu.param.vecs <- ave.param.list$mu.param.vecs[kept.word.ids,]
-mu.corpus.vec <- ave.param.list$mu.corpus.vec[kept.word.ids]
-parent.child.list <- ave.param.list$parent.child.list 
-phi.parent.param.vecs <- get.phi.parent.vec(mu.param.vecs,mu.corpus.vec,
-                                            parent.child.list)
-#print(head(phi.parent.param.vecs))
-phi.ave.param.vecs <- get.phi.ave.vec(phi.param.vecs,phi.parent.param.vecs,
-                                      parent.child.list)
-#print(head(phi.ave.param.vecs))
+## mu.param.vecs <- ave.param.list$mu.param.vecs[kept.word.ids,]
+## mu.corpus.vec <- ave.param.list$mu.corpus.vec[kept.word.ids]
+## parent.child.list <- ave.param.list$parent.child.list
+
+## phi.parent.param.vecs <- get.phi.parent.vec(mu.param.vecs,mu.corpus.vec,
+##                                             parent.child.list)
+## #print(head(phi.parent.param.vecs))
+## phi.ave.param.vecs <- get.phi.ave.vec(phi.param.vecs,phi.parent.param.vecs,
+##                                       parent.child.list)
+## #print(head(phi.ave.param.vecs))
 
 top.phi <- t(apply(phi.param.vecs,2,get.top.items,word.id.vec=phi.word.ids,
                    word.stem.table=word.stem.table,n.get=n.get))

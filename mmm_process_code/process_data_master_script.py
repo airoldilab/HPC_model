@@ -50,7 +50,7 @@ outfilename_theta = out_train_dir + "initialized_theta.txt"
 
 # Functions
 
-## Step 1
+# Step 1
 ## Determine pool of canididate words using raw frequencies
 #words_keep = get_word_cand(cutoff=cutoff,infile_name=infile_wc, \
 #outfile_name=outfile_cand)
@@ -67,10 +67,10 @@ outfilename_theta = out_train_dir + "initialized_theta.txt"
 # Step 3
 # Run all of the process_***_lda_data.py scripts using LSF
 
-## Step 4
-## Initialize tree parameters for all sets of data
-#initialize_mmm_params(infilename_selfeat,infilename_tab,infilename_lda, \
-#outfilename_mu,outfilename_mu_corpus,outfilename_tau2,L=140)
+# Step 4
+# Initialize tree parameters for all sets of data
+initialize_mmm_params(infilename_selfeat,infilename_tab,infilename_lda, \
+outfilename_mu,outfilename_mu_corpus,outfilename_tau2,L=140)
 
 # Step 5
 # Initialize membership vectors (theta vectors) for training set

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
-#BSUB -q airoldi
+#BSUB -q normal_serial
 
 # EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
 #BSUB -u jbischof@fas.harvard.edu
@@ -11,16 +11,16 @@
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
-nodes=500
+nodes=1000
 partition=valid
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 out_dir=${main_dir}mmm_class_out/${partition}_slave_data${cutoff}/
 fit_dir=${main_dir}mmm_fits/fit_train${cutoff}/
 data_dir=${main_dir}mmm_raw_data/
 data_folder=parsed_${partition}_data${cutoff}/
-#cleanup_file=0
-class_dir=${main_dir}mmm_class_out/
-cleanup_file=${class_dir}${partition}_class_${cutoff}/jobs_to_do.txt
+cleanup_file=0
+# class_dir=${main_dir}mmm_class_out/
+# cleanup_file=${class_dir}${partition}_class_${cutoff}/jobs_to_do.txt
 
 
 # Create output directory if doesn't already exist

@@ -9,7 +9,18 @@
 # THE JOB ARRAY:
 #BSUB -J "process_reuters_lda_data_train_valid"
 
+
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
-python process_parse_lda_data.py train_valid 500
+partition=train_valid
+cutoff=500
+main_dir=/n/airoldifs1/jbischof/reuters_output/
+out_dir=${main_dir}mmm_raw_data/parsed_${partition}_data${cutoff}/
 
+# Create partition directory if doesn't already exist
+if [ ! -d $out_dir ]
+then
+mkdir $out_dir
+fi
 
+# Run python script
+python process_parse_lda_data.py $partition $cutoff $main_dir

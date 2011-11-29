@@ -85,7 +85,7 @@ for( job.id in job.ids ) {
                                      ndraws.import.samp=300,
                                      return.expect=TRUE,
                                      hmc.burnin=100,
-                                     hmc.step.size=0.015,
+                                     hmc.step.size=0.04,
                                      hmc.nsteps=50,
                                      hmc.debug=FALSE)
   

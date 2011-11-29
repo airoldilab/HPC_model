@@ -5,6 +5,7 @@
 get.data.for.xi <- function(doc.id,mu.param.vecs,
                             doc.length.vec,doc.count.list,
                             eta.vec,full.Sigma,
+                            Sigma.cor=NULL,
                             lambda2=NULL,Sigma=NULL,
                             doc.topic.list=NULL,
                             classify=FALSE,active.only=TRUE,
@@ -106,9 +107,9 @@ get.data.for.xi <- function(doc.id,mu.param.vecs,
     if(full.Sigma){
       Sigma.inv <- solve(Sigma)
     } else {
-      if(!is.null(current.param.list$Sigma.cor)){
-        Sigma.base <- current.param.list$Sigma.cor
-        Sigma.base.inv <- solve(current.param.list$Sigma.cor)
+      if(!is.null(Sigma.cor)){
+        Sigma.base <- Sigma.cor
+        Sigma.base.inv <- solve(Sigma.cor)
       } else {Sigma.base <- Sigma.base.inv <- diag(length(topics))}
       Sigma <- lambda2*Sigma.base
       Sigma.inv <- (1/lambda2)*Sigma.base.inv
@@ -420,6 +421,7 @@ optim.xi <- function(job.id,current.param.list,doc.length.vec,
                                   full.Sigma=current.param.list$full.Sigma,
                                   lambda2=current.param.list$lambda2,
                                   Sigma=current.param.list$Sigma,
+                                  Sigma.cor=current.param.list$Sigma.cor,
                                   mu.param.vecs=current.param.list$mu.param.vecs,
                                   doc.length.vec=doc.length.vec,
                                   doc.count.list=doc.count.list,

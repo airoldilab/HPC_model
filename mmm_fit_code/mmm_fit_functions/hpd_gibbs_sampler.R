@@ -278,10 +278,23 @@ update.average.params <- function(i,current.param.list,ave.param.list,
     # Update phis
     phi.param.vecs <- get.phi.vec(mu.param.vecs=current.param.list$mu.param.vecs,
                                   parent.child.list=current.param.list$parent.child.list)
-    if(i==1){ave.param.list$phi.param.vecs <- phi.param.vecs
+    phi.parent.param.vecs <- get.phi.parent.vec(mu.param.vecs=current.param.list$mu.param.vecs,
+                                                mu.corpus.vec=current.param.list$mu.corpus.vec,
+                                                parent.child.list=current.param.list$parent.child.list)
+    phi.ave.param.vecs <- get.phi.ave.vec(phi.param.vecs=phi.param.vecs,
+                                          phi.parent.param.vecs=phi.parent.param.vecs,
+                                          parent.child.list=current.param.list$parent.child.list)
+    if(i==1){
+      ave.param.list$phi.param.vecs <- phi.param.vecs
+      ave.param.list$phi.parent.param.vecs <- phi.parent.param.vecs
+      ave.param.list$phi.ave.param.vecs <- phi.ave.param.vecs
     } else {
       ave.param.list$phi.param.vecs <- weight.current*ave.param.list$phi.param.vecs +
         weight.new*phi.param.vecs
+      ave.param.list$phi.parent.param.vecs <- weight.current*ave.param.list$phi.parent.param.vecs +
+        weight.new*phi.parent.param.vecs
+      ave.param.list$phi.ave.param.vecs <- weight.current*ave.param.list$phi.ave.param.vecs +
+        weight.new*phi.ave.param.vecs
     }}
     
             

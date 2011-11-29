@@ -67,8 +67,8 @@ current.param.list <-
                     filename.doc.xi=NULL,
                     corpus.topic="CORPUS",
                     topic.address.book=topic.address.book,
-                    lambda2.start=35,
-                    eta.offset=-5,
+                    lambda2.start=130,
+                    eta.offset=-30,
                     kappa.0=-1,
                     omega2.0=0,
                     full.Sigma=FALSE)

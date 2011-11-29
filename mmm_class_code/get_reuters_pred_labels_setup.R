@@ -47,7 +47,7 @@ doc.topic.list <- data.list$doc.topic.list
 
 # Initialization files
 # Note that ave.param.list missing a lot of information in current.param.list
-filename.ave.params <- paste(fit.dir,"ave_params_gibbs_class.RData",sep="")
+filename.ave.params <- paste(fit.dir,"ave_params_gibbs.RData",sep="")
 load(filename.ave.params)
 Sigma.cor <- cor(ave.param.list$xi.param.vecs)
 current.param.list <- gen.class.data(ave.param.list=ave.param.list,

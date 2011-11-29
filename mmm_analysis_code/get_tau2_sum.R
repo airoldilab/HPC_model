@@ -64,6 +64,14 @@ title("Density of tau2 for regular words v. stop words")
 title(ylab="tau2")
 dev.off()
 
+filename <- paste(analysis.dir,"by_stop_word_log_vp.png",sep="")
+png(filename,width=7,height=7,units="in",res=300)
+vioplot(log(reg.word.max.tau2),log(stop.word.max.tau2),
+        names=c("Regular Words","Stop Words"))
+title("Density of tau2 for regular words v. stop words")
+title(ylab="log tau2")
+dev.off()
+
 probs <- seq(0,1,0.05)
 out.mat <- rbind(quantile(reg.word.max.tau2,probs=probs),quantile(stop.word.max.tau2,probs=probs))
 rownames(out.mat) <- c("reg words","stop words")

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # QUEUE
-#BSUB -q airoldi
+#BSUB -q normal_serial
 
 # EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
 #BSUB -u jbischof@fas.harvard.edu
@@ -12,7 +12,7 @@
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 raw_data_dir=${main_dir}mmm_raw_data/
 out_dir=${raw_data_dir}ldac_data/
-cutoff=250
+cutoff=500
 
 # Create output directory if doesn't already exist
 if [ ! -d $out_dir ]
