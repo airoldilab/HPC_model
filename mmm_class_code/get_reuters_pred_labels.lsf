@@ -23,7 +23,7 @@
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
 nodes=1000
-partition=valid
+partition=test
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 slave_data_dir=${main_dir}mmm_class_out/${partition}_slave_data${cutoff}/
 out_dir=${main_dir}mmm_class_out/${partition}_class_${cutoff}/

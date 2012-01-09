@@ -12,4 +12,4 @@
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 cutoff=500
-./process_model_comp_liblinear.sh $main_dir $cutoff svm
+./process_model_comp_liblinear.sh $main_dir $cutoff logit

@@ -8,6 +8,7 @@ import sys
 filename_lda = sys.argv[1]
 filename_comp = sys.argv[2]
 outfilename = sys.argv[3]
+outfilename_comp = sys.argv[4]
 
 
 def get_unfinished_class_docs(filename_lda,filename_comp,outfilename):
@@ -15,6 +16,7 @@ def get_unfinished_class_docs(filename_lda,filename_comp,outfilename):
    file_lda = open(filename_lda,"r")
    file_comp = open(filename_comp,"r")
    outfile = open(outfilename,"w")
+   outfile_comp = open(outfilename_comp,"w")
    
    # Go through file_lda line by line and grab doc_ids
    full_doc_dict = {}
@@ -29,8 +31,12 @@ def get_unfinished_class_docs(filename_lda,filename_comp,outfilename):
    for line in file_comp:
       line_list = string.split(line.strip(),"\t")
       doc_id = line_list[0]
-      full_doc_dict[doc_id] = 1
+      if full_doc_dict[doc_id] == 1: continue
+      else: 
+	 full_doc_dict[doc_id] = 1
+	 outfile_comp.write(line)
    file_comp.close()
+   outfile_comp.close()
    
    # Now write a file with all the unfinished docs
    n_left = 0

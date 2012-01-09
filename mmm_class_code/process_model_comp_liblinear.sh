@@ -7,13 +7,20 @@ funct_dir="/n/home13/jbischof/reuters_prj/mmm_class_code/mmm_class_functions/"
 #Get arguments to script
 main_dir=$1
 cutoff=$2
+model=$3
 
-model=svm
+# Output type
+if [ "$model" == "svm" ]
+then 
+   output=pred
+else 
+   output=probs
+fi
 
 echo
 echo "#########"
-echo svm_pred_process
-Rscript ${funct_dir}get_reuters_svm_pred_postprocess.R $main_dir $cutoff
+echo ${model}_${output}_process
+Rscript ${funct_dir}get_reuters_${model}_${output}_postprocess.R $main_dir $cutoff
 
 echo
 echo "#########"

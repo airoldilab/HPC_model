@@ -19,7 +19,6 @@ final.param.list <- lapply(final.param.list,na.omit)
 na.pos <- attr(final.param.list$psi,which="na.action")
 
 # Create some traceplots of HMC draws
-library("MCMCpack")
 pdf(paste(out.dir,"HMC_traceplots.pdf",sep=""),width=8,height=6)
 par(mfrow=c(2,2))
 plot(na.omit(final.param.list$mu.param.vecs[1,1,]),ylab="mu_1,1",xlab="Iteration",
