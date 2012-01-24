@@ -70,6 +70,7 @@ xi.slave.fn <- function(current.param.list,doc.length.vec,
         # Get hessian of likelihood at mode
         xi.data.list <- optim.xi.out$xi.data.list
         optim.hes <- optim.xi.out$hessian
+        if(is.null(optim.hes)){print("optim.hes NULL")}
         hessian.like.list[[doc.id]] <- optim.hes + xi.data.list$Sigma.inv
 
       }}

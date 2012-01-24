@@ -4,14 +4,66 @@ library("geoR")
 library("MCMCpack")
 library("mvtnorm")
 
+
+#################
+# HMC functions #
+#################
+
+U.xi.hparam <- function(...){-1*xi.hparam.post(...)}
+U.grad.xi.hparam <- function(...){-1*xi.hparam.post.grad(...)}
+
+
+# Function to get HMC samples from xi.hparam posterior
+hmc.xi.hparam <- function(ndraws,step.size,nsteps,current.param.list,
+                          debug=FALSE,last.draw=FALSE){
+
+  # Extract tau2 hyperparameters
+  eta.vec.old <- current.param.list$eta.vec
+  lambda2.old <- current.param.list$lambda2
+  xi.param.vecs <- current.param.list$xi.param.vecs
+  
+  # Evaluate hessian at conditional posterior mode
+  optim.out <- profile.optim.gamma(tau2.vec)
+  kappa.fit <- optim.out$kappa
+  lambda.fit <- optim.out$lambda
+  hes <- hessian.gamma(tau2.vec,kappa.fit,lambda.fit)
+  
+  # Get mass matrix from hessian
+  hes2mass.out <- hes2mass(hes=hes,hes.diag=FALSE)
+  M.inv <- hes2mass.out$M.inv
+  M.sd <- hes2mass.out$M.sd
+  M.diag <- hes2mass.out$M.diag
+  
+  # Run HMC
+  out.hmc <- metro.hmc(ndraws=ndraws,q.start=log.par.old,nsteps=nsteps,
+                       step.size=step.size,U=U.xi.hparam,U.grad=U.grad.xi.hparam,
+                       M.sd=M.sd,M.inv=M.inv,M.diag=M.diag,
+                       debug=debug,tau2.vec=tau2.vec)
+  
+  if(ndraws == 1){out.hmc <- matrix(out.hmc,nrow=1,byrow=TRUE)}
+  
+  # Transform draws into inv.chisq scale
+  exp.gamma.draws <- exp(out.hmc)
+  inv.chisq.draws <- t(apply(exp.gamma.draws,1,convert.hparams))
+  out.hmc <- inv.chisq.draws
+  
+  # Only return last draw if requested
+  if(last.draw){out.hmc <- out.hmc[nrow(out.hmc),]}
+  
+  return(out.hmc)
+}
+
+
+
+
+
+
+
+
+
 xi.hparam.draw <- function(xi.param.vecs,D,K,full.Sigma=FALSE,
                            lambda2.old=NULL,Sigma.old=NULL,
-                           Sigma.0=NULL,kappa.0=0,omega2.0=0,
-                           frac.doc.use=NULL,xi.updated=NULL){
-
-  # If only a fraction of xis updated, only use those to updated hyperparams
-  if(!is.null(xi.updated)){xi.param.vecs <- xi.param.vecs[xi.updated,]
-                           D <- length(xi.updated)}
+                           Sigma.0=NULL,kappa.0=0,omega2.0=0){
 
   # Get shared quantities of interest
   eta.post.mean <- colMeans(xi.param.vecs)
@@ -35,7 +87,7 @@ xi.hparam.draw <- function(xi.param.vecs,D,K,full.Sigma=FALSE,
     
     # Draw new lambda2 given new eta
     # kappa.0==-1 is a flag for a flat prior on log lambda2
-    if(kappa.0==-1){ 
+    if(kappa.0==-1){
       # Draw lambda2 unconditionally
       xi.demean.vec <- as.vector(sweep(xi.param.vecs, 2, eta.post.mean, "-"))
       lambda2.df <- D*K - 1

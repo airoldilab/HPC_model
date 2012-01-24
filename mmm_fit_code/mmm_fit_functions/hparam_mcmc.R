@@ -1,7 +1,8 @@
 # Function to draw hyperparameters for HPD model
 
 hparam.draw <- function(current.param.list,tree.update=TRUE,
-                        xi.update=TRUE,nsteps.tau2=5){
+                        xi.update=TRUE,nsteps.tau2=5,
+                        frac.doc.use=NULL,xi.updated=NULL){
 
   out.list <- list()
   D <- current.param.list$D
@@ -50,7 +51,8 @@ hparam.draw <- function(current.param.list,tree.update=TRUE,
                                Sigma.old=current.param.list$Sigma,
                                D=D,K=K,full.Sigma=TRUE,
                                kappa.0=current.param.list$kappa.0,
-                               Sigma.0=current.param.list$Sigma.0)
+                               Sigma.0=current.param.list$Sigma.0,
+                               frac.doc.use=frac.doc.use,xi.updated=xi.updated)
       eta.vec.new <- xi.out$eta.vec
       Sigma.new <- xi.out$Sigma
       
@@ -59,7 +61,8 @@ hparam.draw <- function(current.param.list,tree.update=TRUE,
                                lambda2.old=current.param.list$lambda2,
                                kappa.0=current.param.list$kappa.0,
                                omega2.0=current.param.list$omega2.0,
-                               D=D,K=K,full.Sigma=FALSE)
+                               D=D,K=K,full.Sigma=FALSE,
+                               frac.doc.use=frac.doc.use,xi.updated=xi.updated)
       eta.vec.new <- xi.out$eta.vec
       lambda2.new <- xi.out$lambda2
     }

@@ -88,6 +88,8 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
                                         debug=FALSE,
                                         tree.job.list=tree.job.list,
                                         xi.job.list=xi.job.list,
+                                        tree.update=TRUE,xi.update=TRUE,
+                                        frac.doc.use=NULL,
                                         file.current.param.list=file.current.param.list,
                                         file.ave.param.list=file.ave.param.list,
                                         file.final.param.list=file.final.param.list)

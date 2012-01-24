@@ -146,7 +146,7 @@ get.lambda.kappa.sd <- function(lambda,kappa,N.tau2,inv.tau2.vec){
 # Function to get Hessian for likelihood in log space
 # Need chain rule for all the second derivatives
 hessian.gamma <- function(tau2.vec,kappa,lambda){
-
+  
   inv.tau2.vec <- 1/tau2.vec
   N.tau2 <- length(tau2.vec)
   
@@ -156,14 +156,14 @@ hessian.gamma <- function(tau2.vec,kappa,lambda){
   kappa.sd <- get.kappa.sd(lambda,kappa,N.tau2,inv.tau2.vec)
   lambda.kappa.sd <- get.lambda.kappa.sd(lambda,kappa,N.tau2,inv.tau2.vec)
   
-  h.lambda2 <- lambda*lambda.fd + lambda^2*lambda.sd
-  h.kappa2 <- kappa*kappa.fd + kappa^2*kappa.sd
+  h.lambda <- lambda*lambda.fd + lambda^2*lambda.sd
+  h.kappa <- kappa*kappa.fd + kappa^2*kappa.sd
   h.lambda.kappa <- kappa*lambda*lambda.kappa.sd
-
-  hessian <- matrix(c(h.kappa2,h.lambda.kappa,h.lambda.kappa,h.lambda2),
+  
+  hessian <- matrix(c(h.kappa,h.lambda.kappa,h.lambda.kappa,h.lambda),
                     2,2)
   rownames(hessian) <- colnames(hessian) <- c("kappa","lambda")
-
+  
   return(hessian)
 
 }

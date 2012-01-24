@@ -14,33 +14,45 @@ hpd.gibbs.sampler <- function(current.param.list,
                               file.final.param.list=NULL,
                               file.ave.param.list=NULL,
                               tree.update=TRUE,xi.update=TRUE,
+                              # Use case control sampling
+                              # Regretfully ineffective
                               Ndoc.case.control=NULL,
                               Nfeat.case.control=NULL,
+                              # Use less than all the documents for Gibbs sampler?
+                              # (helpful to speed convergence)
+                              frac.doc.use=NULL,
                               nwords.trace=50,ndocs.trace=50,
                               ndraws.save=5){
-
+  
   # Set up schedule for updating hessian
   hes.sched <- sqrt.seq.sched(1,ndraws.gibbs,Nupdate.hes)
 
+  # Choose subset of documents to sample if requested
+  if(!is.null(frac.doc.use)){
+        xi.job.list <- pare.job.list(job.list=xi.job.list,frac.use=frac.doc.use)
+        xi.updated <- unlist(xi.job.list)
+   } else {xi.updated <- NULL}
+  
   # Create list of stored draws
   final.param.list <- setup.final.param.list(current.param.list=current.param.list,
                                              ndraws.gibbs=ndraws.gibbs,
                                              tree.update=tree.update,xi.update=xi.update,
-                                             nwords.trace=nwords.trace,ndocs.trace=ndocs.trace)
+                                             nwords.trace=nwords.trace,
+                                             ndocs.trace=ndocs.trace)
   ave.param.list <- current.param.list
   
   # Send out signal to slaves to load up their data
   n.slaves <- mpi.comm.size(0)
   for(slave.id in 1:n.slaves){
     mpi.send.Robj(obj=0,dest=slave.id,tag=88,comm=0)}
-
+  
   # Write out initial current.param.list
   save(current.param.list,file=file.current.param.list)
-
+  
   # Cycle through blocks of draws
   for(i in 1:ndraws.gibbs){
     if(print.iter){cat(paste("\nGlobal iteration",i,"\n"))}
-
+    
     if(tree.update){
       # Cycle through all words and draw tree parameters
       # Draw tree parameters using MPI
@@ -58,7 +70,7 @@ hpd.gibbs.sampler <- function(current.param.list,
         save(current.param.list,file=file.current.param.list)
       }
     }
-
+    
     
     if(xi.update){
       # Cycle through all docs and draw membership parameters
@@ -79,17 +91,20 @@ hpd.gibbs.sampler <- function(current.param.list,
         as(xi.master.out$theta.param.vecs,"sparseMatrix")
       current.param.list$xi.param.vecs <- xi.master.out$xi.param.vecs
     }
-
-
+    
+    
     # Draw hyperameters
     hparam.outlist <- hparam.draw(current.param.list=current.param.list,
-                                  tree.update=tree.update,xi.update=xi.update)
+                                  tree.update=tree.update,xi.update=xi.update,
+                                  frac.doc.use=frac.doc.use,xi.updated=xi.updated)
+    
     if(tree.update){
       current.param.list$psi <- hparam.outlist$psi
       current.param.list$gamma <- hparam.outlist$gamma
       current.param.list$nu <- hparam.outlist$nu
       current.param.list$sigma2 <- hparam.outlist$sigma2
     }
+    
     if(xi.update){
       current.param.list$eta.vec <- hparam.outlist$eta.vec
       if(current.param.list$full.Sigma){
@@ -120,11 +135,11 @@ hpd.gibbs.sampler <- function(current.param.list,
       save(ave.param.list,file=file.ave.param.list)
     }
   }
-
+  
   
   # Tell worker nodes to exit
   master.exit.fn()
-
+  
   # Return final set of parameters
   return(final.param.list)
 }
@@ -146,6 +161,29 @@ seq.sched <- function(from,to,length.out){
   sched <- trunc(sched.raw[-(length.out+1)])
   return(sched)
 }
+
+#########################################################################
+#########################################################################
+
+# Function to pare down job list for faster initial updates
+
+pare.job.list <- function(job.list,frac.use){
+
+  # Check that frac.use between zero and one
+  if(!all(frac.use<=1,frac.use>0)){stop("frac.use should be a number between zero and one.")}
+
+  # Go through job list and keep frac.use jobs for each worker (round up)
+  for (worker.id in names(job.list)) {
+    worker.jobs <- job.list[[worker.id]]
+    njobs <- length(worker.jobs)
+    njobs.keep <- ceiling(njobs*frac.use)
+    job.list[[worker.id]] <- sample(x=worker.jobs,size=njobs.keep,replace=FALSE)
+  }
+
+  return(job.list)
+}
+
+
 
 #########################################################################
 #########################################################################
