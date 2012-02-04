@@ -91,14 +91,14 @@ for (topic in topics){
   labels.zoom <- word.stem.table[index.label.zoom,1]
 
   cex.plot <- 0.6
-  title.plot <- paste("Upper 1% of Frequency-Exclusivity plot for",topic.name)
+  title.plot <- paste("Upper 5% of Frequency-Exclusivity plot for",topic.name)
   title.pdf <- paste(fe.zoom.dir,"fe_zoom_plot_",topic,sep="")
   png(title.pdf,width=8,height=8,units="in",res=300)
   plot(mu.vec.zoom,logit.phi.vec.zoom,main=title.plot,
        ylab=expression(paste("Exclusivity: ",logit(phi[fk]))),
-       xlab=expression(paste("Frequency: ",mu[fk])),cex=cex.plot)
+       xlab=expression(paste("Frequency: ",mu[fk])),cex=cex.plot,col="white")
   text(mu.vec.label, logit.phi.vec.label, labels = labels.zoom, adj = NULL,
-       pos = 4, offset = 0.25, vfont = NULL,
+       pos = NULL, offset = 0, vfont = NULL,
        cex = cex.plot, col = NULL, font = NULL)
   dev.off()
 
