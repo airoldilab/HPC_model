@@ -66,4 +66,4 @@ top.sem.cont <- t(apply(sem.cont.vecs,2,get.top.items,word.id.vec=phi.word.ids,
                    word.stem.table=word.stem.table,n.get=n.get))
 top.sem.cont <- cbind(topic.dict[topics,1],top.sem.cont)
 file.out <- paste(analysis.dir,"top_sem_cont.txt",sep="")
-write.table(top.sem.cont,file.out,quote=FALSE,sep=" ",col.names=FALSE)
+write.table(top.sem.cont,file.out,quote=FALSE,sep="\t",col.names=FALSE)

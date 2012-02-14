@@ -10,7 +10,9 @@ xi.prop.draw <- function(job.id,
                          hmc.burnin=NULL,
                          hmc.step.size=0.1,
                          hmc.nsteps=20,
-                         hmc.debug=FALSE){
+                         hmc.debug=FALSE,
+                         # Just calculate posterior mode?
+                         max.only=FALSE){
   
   # Get mode of xi parameters for starting point and evaluating hessian
   optim.xi.out <- optim.xi(job.id=job.id,
@@ -23,35 +25,39 @@ xi.prop.draw <- function(job.id,
                            classify=TRUE)
   
   xi.data.list <- optim.xi.out$xi.data.list
-
-  # Use optim output only if converged; otherwise use prior
-  if(optim.xi.out$optim.conv){
-    xi.opt <- optim.xi.out$xi.d
-    xi.data.list <- optim.xi.out$xi.data.list
-    optim.hes <- optim.xi.out$hessian
-    hessian.like <- optim.hes + xi.data.list$Sigma.inv
-  } else {
-    xi.opt <- current.param.list$eta.vec
-    hessian.like <- 2*xi.data.list$Sigma.inv
-  }
+  xi.opt <- optim.xi.out$xi.d
   
-  # Get samples from proposal distribution using HMC
-  xi.draws <- hmc.xi(job.id=job.id,ndraws=ndraws.import.samp,
-                     step.size=hmc.step.size,nsteps=hmc.nsteps,
-                     current.param.list=current.param.list,
-                     doc.length.vec=doc.length.vec,
-                     doc.count.list=doc.count.list,
-                     hessian.like=hessian.like,
-                     active.only=FALSE,
-                     Nfeat.case.control=NULL,
-                     classify=TRUE,pos.start=xi.opt,
-                     debug=hmc.debug)
+  if(!max.only){
+    # Use optim output only if converged; otherwise use prior
+    if(optim.xi.out$optim.conv){
+      #xi.opt <- optim.xi.out$xi.d
+      optim.hes <- optim.xi.out$hessian
+      hessian.like <- optim.hes + xi.data.list$Sigma.inv
+    } else {
+      xi.opt <- current.param.list$eta.vec
+      hessian.like <- 2*xi.data.list$Sigma.inv
+    }
   
-  # Remove burnin draws if requested
-  if(!is.null(hmc.burnin)){xi.draws <- xi.draws[-c(1:hmc.burnin),]}
+    # Get samples from proposal distribution using HMC
+    xi.draws <- hmc.xi(job.id=job.id,ndraws=ndraws.import.samp,
+                       step.size=hmc.step.size,nsteps=hmc.nsteps,
+                       current.param.list=current.param.list,
+                       doc.length.vec=doc.length.vec,
+                       doc.count.list=doc.count.list,
+                       hessian.like=hessian.like,
+                       active.only=FALSE,
+                       Nfeat.case.control=NULL,
+                       classify=TRUE,pos.start=xi.opt,
+                       debug=hmc.debug)
   
-  out.list <- list(xi.draws=xi.draws,xi.data.list=xi.data.list,
-                   xi.opt=xi.opt)
+    # Remove burnin draws if requested
+    if(!is.null(hmc.burnin)){xi.draws <- xi.draws[-c(1:hmc.burnin),]}
+    
+    out.list <- list(xi.draws=xi.draws,xi.data.list=xi.data.list,
+                     xi.opt=xi.opt)
+    
+  } else {out.list <- list(xi.opt=xi.opt,xi.data.list=xi.data.list)}
+  
   
   return(out.list)
 }
@@ -122,7 +128,9 @@ label.import.sampler <- function(job.id,current.param.list,
                                  hmc.burnin=NULL,
                                  hmc.step.size=0.1,
                                  hmc.nsteps=20,
-                                 hmc.debug=FALSE){
+                                 hmc.debug=FALSE,
+                                 # Just calculate posterior mode?
+                                 max.only=TRUE){
 
   # Get xi draws from proposal distribution
   xi.prop.out <- xi.prop.draw(job.id=job.id,
@@ -133,32 +141,37 @@ label.import.sampler <- function(job.id,current.param.list,
                               hmc.burnin=hmc.burnin,
                               hmc.step.size=hmc.step.size,
                               hmc.nsteps=hmc.nsteps,
-                              hmc.debug=hmc.debug)
+                              hmc.debug=hmc.debug,
+                              max.only=max.only)
 
-  xi.draws <- xi.prop.out$xi.draws
+  
   xi.data.list <- xi.prop.out$xi.data.list
   xi.opt <- xi.prop.out$xi.opt
 
-  # Get I draws given xi draws
-  I.draws <- label.prop.draw(xi.draws)
+  if(!max.only){
+    # Get I draws given xi draws
+    xi.draws <- xi.prop.out$xi.draws
+    I.draws <- label.prop.draw(xi.draws)
 
-  # Evaluate importance weights for each draw
-  log.weights <- label.import.weights(xi.draws=xi.draws,
-                                      I.draws=I.draws,
-                                      xi.data.list=xi.data.list)
+    # Evaluate importance weights for each draw
+    log.weights <- label.import.weights(xi.draws=xi.draws,
+                                        I.draws=I.draws,
+                                        xi.data.list=xi.data.list)
+    
+    # Get normalized weights
+    weights <- exp(log.weights)
+    norm.weights <- weights/sum(weights)
+    
+    out.list <- list(I.draws=I.draws,xi.draws=xi.draws,xi.opt=xi.opt,
+                     log.weights=log.weights,norm.weights=norm.weights)
 
-  # Get normalized weights
-  weights <- exp(log.weights)
-  norm.weights <- weights/sum(weights)
-  
-  out.list <- list(I.draws=I.draws,xi.draws=xi.draws,xi.opt=xi.opt,
-                   log.weights=log.weights,norm.weights=norm.weights)
-
-  # Return either expectation of label vector or posterior mode
-  if(return.expect){
-    out.list$I.expect <- colSums(norm.weights*I.draws)
-    out.list$xi.expect <- colSums(norm.weights*xi.draws)
-  }
+    # Return either expectation of label vector or posterior mode
+    if(return.expect){
+      out.list$I.expect <- colSums(norm.weights*I.draws)
+      out.list$xi.expect <- colSums(norm.weights*xi.draws)
+    }
+    
+  } else {out.list <- xi.opt}
   
   return(out.list)
 }

@@ -8,6 +8,7 @@ slave.data.dir <- args[1]
 slave.id <- args[2]
 cutoff <- args[3]
 out.dir <- args[4]
+max.only <- as.numeric(args[5])
 
 ## cutoff <- 500
 ## partition <- "valid"
@@ -87,9 +88,13 @@ for( job.id in job.ids ) {
                                      hmc.burnin=100,
                                      hmc.step.size=0.04,
                                      hmc.nsteps=50,
-                                     hmc.debug=FALSE)
+                                     hmc.debug=FALSE,
+                                     max.only=max.only)
+
+  if(max.only){xi.out <- import.out
+  } else {xi.out <- import.out$xi.expect}
   
-  midstr <- paste(import.out$xi.expect,collapse="\t")
+  midstr <- paste(xi.out,collapse="\t")
   outstr <- paste(job.id,"\t",midstr,"\n",sep="")
   cat(outstr,file=file.out,append=TRUE)
 

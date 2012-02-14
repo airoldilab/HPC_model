@@ -9,9 +9,8 @@
 # THE JOB ARRAY:
 #BSUB -J "get_reuters_pred_labels_setup"
 
-# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
-nodes=1000
+nodes=200
 partition=test
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 out_dir=${main_dir}mmm_class_out/${partition}_slave_data${cutoff}/
@@ -21,7 +20,7 @@ data_folder=parsed_${partition}_data${cutoff}/
 initial=1
 
 # Load up finished job ids if this not initial run
-if [ $inital==0 ]
+if [ $inital==1 ]
 then
    cleanup_file=0
 else

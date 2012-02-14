@@ -40,10 +40,10 @@ if(model=="mmm"){
   valid.topic.probs <- read.table(file.valid.data,header=FALSE,row.names=1)[docids.valid,]
   colnames(valid.topic.probs) <- topics
   
-  ## # Test data
-  ## file.test.data <- paste(class.dir,"test_class_",cutoff,"/final_class.txt",sep="")
-  ## test.topic.probs <- read.table(file.test.data,header=FALSE,row.names=1)[docids.test,]
-  ## colnames(test.topic.probs) <- topics
+  # Test data
+  file.test.data <- paste(class.dir,"test_class_",cutoff,"/final_class.txt",sep="")
+  test.topic.probs <- read.table(file.test.data,header=FALSE,row.names=1)[docids.test,]
+  colnames(test.topic.probs) <- topics
   
 
 } else if(model=="lda") {
@@ -99,7 +99,7 @@ y.valid.vec <- as.vector(y.valid.mat)
 y.test.vec <- as.vector(y.test.mat)
 
 # Want labels for test vectors by topic so can break down results
-#test.vec.topic.labels <- rep(topics.use,each=length(docids.test))
+test.vec.topic.labels <- rep(topics.use,each=length(docids.test))
 n.doc.test <- length(docids.test)
 n.topics <- length(topics.use)
 test.topic.pos <- list()
@@ -194,7 +194,7 @@ write.table(test.perf.mat,file=out.file,quote=FALSE,sep="\t")
 print(test.perf.mat)
 
 
-## # Write model performance object to RData file
+# Write model performance object to RData file
 ## file.model.perf.root <- paste("reuters_",model,"_perf_onethres",sep="")
 ## file.model.perf <- paste(out.dir,file.model.perf.root,".RData",sep="")
 ## save(test.perf,test.perf.pr,file=file.model.perf)

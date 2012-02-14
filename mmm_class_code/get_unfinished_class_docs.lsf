@@ -9,18 +9,25 @@
 # THE JOB ARRAY:
 #BSUB -J "get_unfinished_class_docs"
 
+# Which iteration of the process is this?
+iter=1
 
-# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+
 partition=test
 cutoff=500
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 raw_data_dir=${main_dir}mmm_raw_data/
 class_dir=${main_dir}mmm_class_out/
+output_dir=${class_dir}${partition}_class_${cutoff}/
 filename_lda=${raw_data_dir}/reuters_${partition}_ldaformat.txt
-filename_comp=${class_dir}${partition}_class_${cutoff}/final_class.txt
-outfilename=${class_dir}${partition}_class_${cutoff}/jobs_to_do.txt
-outfilename_comp=${class_dir}${partition}_class_${cutoff}/final_class_corr.txt
+filename_comp=${output_dir}final_class${iter}.txt
+outfilename=${output_dir}jobs_to_do.txt
+outfilename_comp=${output_dir}final_class_corr.txt
 
+# Create final class file
+cat ${output_dir}class_data* > ${filename_comp}
+
+# Run script
 python mmm_class_functions/get_unfinished_class_docs.py $filename_lda $filename_comp $outfilename $outfilename_comp
 
 # Overwrite final class probabilities with new file where duplicates removed

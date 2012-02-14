@@ -43,7 +43,8 @@ topic.dict <- read.table("~/reuters_prj/mmm_analysis_code/topic_codes.txt",
 
 # Plot discrim power and frequency for topic
 for (topic in parent.topics){
-  topic.name <- topic.dict[topic,]
+  if(topic=="CORPUS"){topic.name <- topic
+  } else {topic.name <- topic.dict[topic,]}
   child.topics <-parent.child.list[[topic]]
   nchild <- length(child.topics)
   tau2.vec <- rep(log.tau2.param.vecs[,topic],nchild)
@@ -69,11 +70,11 @@ for (topic in parent.topics){
 
   # Set up tp plot
   title.plot <- paste("Differential-Exclusivity plot for",topic.name)
-  title.pdf <- paste(tp.dir,"tp_plot_",topic,sep="")
-  png(title.pdf,width=8,height=8,units="in",res=300)
+  title.png <- paste(tp.dir,"tp_plot_",topic,".png",sep="")
+  png(title.png,width=7,height=7,units="in",res=200)
   plot(tau2.vec.full,logit.phi.vec.full,main=title.plot,
        ylab=expression(paste("Exclusivity: ",logit(phi[fk]))),
-       xlab=expression(paste("Differential usage: ",log(tau2[fk]))),
+       xlab=expression(paste("Differential usage: ",log(tau[fk]^{2}))),
        cex=0.5)
   dev.off()
   

@@ -41,6 +41,7 @@ xi.hparam.draw <- function(xi.param.vecs,D,K,full.Sigma=FALSE,
       lambda2.df <- D*K - 1
       lambda2.scale <- sum(xi.demean.vec^2)/lambda2.df
       lambda2.new <- rinvchisq(n=1,df=lambda2.df,scale=lambda2.scale)
+      #lambda2.new <- 35
       # Draw eta conditional on the new lambda2
       eta.post.var <- lambda2.new/D
       eta.vec.new <- rnorm(n=K,mean=eta.post.mean,sd=sqrt(eta.post.var))
@@ -58,7 +59,6 @@ xi.hparam.draw <- function(xi.param.vecs,D,K,full.Sigma=FALSE,
       lambda2.df <- D*K + kappa.0
       lambda2.scale <- (sum(xi.demean.vec^2)+kappa.0*omega2.0)/lambda2.df
       lambda2.new <- rinvchisq(n=1,df=lambda2.df,scale=lambda2.scale)
-      ## lambda2.new <- 10
     }
   }
 
