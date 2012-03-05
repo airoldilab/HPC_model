@@ -31,7 +31,7 @@ outfilename_mu,outfilename_mu_corpus,outfilename_tau2,L=int(1),debug=False):
    # Initialize topic_expose_dict
    topic_expose_dict = {}
    for topic in topic_list:
-      topic_expose_dict[topic] = float(0)
+      topic_expose_dict[topic] = float(1)
    
    # Initialize feat_topic_count_dict
    feat_topic_count_dict = {}

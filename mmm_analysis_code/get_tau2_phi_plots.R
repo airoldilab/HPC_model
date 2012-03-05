@@ -10,7 +10,7 @@ restrict.quant <- FALSE
 #load("../mmm_fits/fit_train500/ave_params_gibbs.RData")
 #file.kept.word.stems <- "kept_word_id_stems500.txt"
 
-tp.dir <- file.path(analysis.dir,"tau2_phi_plots/")
+tp.dir <- paste(analysis.dir,"tau2_phi_plots/",sep="")
 
 # Load in logit function
 logit <- function(x){log(x)-log(1-x)}
@@ -47,6 +47,7 @@ for (topic in parent.topics){
   } else {topic.name <- topic.dict[topic,]}
   child.topics <-parent.child.list[[topic]]
   nchild <- length(child.topics)
+  baseline <- logit(1/nchild)
   tau2.vec <- rep(log.tau2.param.vecs[,topic],nchild)
   logit.phi.vec <- as.vector(logit.phi.param.vecs[,child.topics])
 
@@ -73,9 +74,11 @@ for (topic in parent.topics){
   title.png <- paste(tp.dir,"tp_plot_",topic,".png",sep="")
   png(title.png,width=7,height=7,units="in",res=200)
   plot(tau2.vec.full,logit.phi.vec.full,main=title.plot,
-       ylab=expression(paste("Exclusivity: ",logit(phi[fk]))),
-       xlab=expression(paste("Differential usage: ",log(tau[fk]^{2}))),
+       ylab=expression(paste("Exclusivity between children: ",logit(phi[fk]))),
+       xlab=expression(paste("Differential usage from parent: ",log(tau[fp]^{2}))),
        cex=0.5)
+  abline(h=baseline,col="red",lwd=2)
+  legend(x="topleft",lwd=2,legend="1/C baseline",col="red")
   dev.off()
   
 }

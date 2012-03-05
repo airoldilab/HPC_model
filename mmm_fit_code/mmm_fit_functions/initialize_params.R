@@ -20,12 +20,14 @@ get.parent.child.list <- function(topic.address.book){
 initialize.params <- function(feature.count.list,doc.count.list,
                               doc.length.vec,doc.topic.list,
                               topic.address.book,
-                              filename.mu.param.vecs,
-                              filename.mu.corpus.vec,
-                              filename.tau2.vec,
-                              filename.doc.xi=NULL,
-                              filename.eta.vec,
                               filename.theta.param.vecs,
+                              # Do you have a ave.param.list from a previous run?
+                              filename.ave.params=NULL,
+                              filename.mu.param.vecs=NULL,
+                              filename.mu.corpus.vec=NULL,
+                              filename.tau2.vec=NULL,
+                              filename.doc.xi=NULL,
+                              filename.eta.vec=NULL,
                               corpus.topic="CORPUS",
                               lambda2.start=4,
                               eta.offset=0,
@@ -39,6 +41,9 @@ initialize.params <- function(feature.count.list,doc.count.list,
   tree.parent.topics <- unique(topic.address.book[,"parent"])
   corpus.topic.pos <- which(tree.parent.topics==corpus.topic)
 
+  # Get the parent.child.list
+  parent.child.list <- get.parent.child.list(topic.address.book)
+
   # Get basic info on corpus
   word.ids <- names(feature.count.list)
   doc.ids <- names(doc.length.vec)
@@ -48,66 +53,85 @@ initialize.params <- function(feature.count.list,doc.count.list,
   V <- length(word.ids)
   topic.pos <- 1:K
   names(topic.pos) <- topics
+  
+  # Load in initialized tree parameters: either from initialization script
+  # or using an old ave.param.list
+  if(!is.null(filename.ave.params)){
+    load(filename.ave.params)
+    mu.param.vecs <- ave.param.list$mu.param.vecs
+    mu.corpus.vec <- ave.param.list$mu.corpus.vec
+    tau2.param.vecs <- ave.param.list$tau2.param.vecs
+    eta.vec <- ave.param.list$eta.vec
+    psi <- ave.param.list$psi
+    gamma2 <- ave.param.list$gamma^2
+    nu <- ave.param.list$nu
+    sigma2 <- ave.param.list$sigma2
+    lambda2 <- ave.param.list$lambda2
+    Sigma <- ave.param.list$Sigma
+    Sigma.0 <- ave.param.list$Sigma.0
+    kappa.0 <- ave.param.list$kappa.0
+    omega2.0 <- ave.param.list$omega2.0
+
+  } else {
+  
+    # Load in initialized mu param vecs
+    mu.param.vecs <- as.matrix(read.table(filename.mu.param.vecs,as.is=TRUE,
+                                        row.names = 1,header=TRUE))[word.ids,]
+    # Load in initialized corpus mu vector
+    mu.corpus.vec <- as.matrix(read.table(filename.mu.corpus.vec,
+                                  as.is = TRUE, row.names = 1))[,1][word.ids]
+    # Load in initialized tau2 vector
+    tau2.vec <- as.matrix(read.table(filename.tau2.vec,
+                                   as.is = TRUE, row.names = 1))[,1][word.ids]
+    # Create tau2.param.vecs
+    tau2.param.vecs <- matrix(tau2.vec,nrow=V,ncol=K.parent,byrow=FALSE,
+                              dimnames=list(names(tau2.vec),tree.parent.topics))
+  
+    # Load in initialized eta vector
+    eta.vec <- as.matrix(read.table(filename.eta.vec,
+                                    as.is = TRUE, row.names = 1))[,1]
+    # Use eta offset
+    eta.vec <- eta.vec + eta.offset
+
+    # Initialize mu hyperparameters
+    psi <- mean(mu.corpus.vec)
+    gamma2 <- var(mu.corpus.vec)
+
+    # Initialize tau2 hyperparameters (must line up with initialized tau2s
+    # for importance sampler to work)
+    # Note that only have one unique initialized tau2 for every word
+    optim.out <- profile.optim.gamma(tau2.param.vecs[,1])
+    inv.chisq.opt <- convert.hparams(par=c(optim.out$kappa,optim.out$lambda))
+    nu <- inv.chisq.opt[1]
+    sigma2 <- inv.chisq.opt[2]
+  
+    # Figure out if full Sigma matrix requested and then create one
+    # Ideally this will eventually be initialized as a scaled up
+    # version of the empirical cov matrix of the topic indicators
+    lambda2 <- lambda2.start
+    if(full.Sigma){
+      Sigma <- lambda2*diag(K)
+      Sigma.0 <- scale.Sigma.0*diag(K)
+    } else {Sigma.0 <- Sigma <- NULL}
+    
+  }
 
   # Load in initialized doc memb parameters
   # Thetas already saved in sparse representation
+  print(head(doc.ids))
   load(filename.theta.param.vecs)
   # Make sure theta.param.vecs is in same order as doc.length.vec
   # so that exposure factor multiplication works
   theta.param.vecs <- theta.param.vecs[doc.ids,]
-
-  
-  # Load in initialized tree parameters
-  
-  # Load in initialized mu param vecs
-  mu.param.vecs <- as.matrix(read.table(filename.mu.param.vecs,as.is=TRUE,
-                                        row.names = 1,header=TRUE))[word.ids,]
-  # Load in initialized corpus mu vector
-  mu.corpus.vec <- as.matrix(read.table(filename.mu.corpus.vec,
-                                  as.is = TRUE, row.names = 1))[,1][word.ids]
-  # Load in initialized tau2 vector
-  tau2.vec <- as.matrix(read.table(filename.tau2.vec,
-                                   as.is = TRUE, row.names = 1))[,1][word.ids]
-  # Create tau2.param.vecs
-  tau2.param.vecs <- matrix(tau2.vec,nrow=V,ncol=K.parent,byrow=FALSE,
-                            dimnames=list(names(tau2.vec),tree.parent.topics))
-  
-  
-  # Load in initialized eta vector
-  eta.vec <- as.matrix(read.table(filename.eta.vec,
-                                  as.is = TRUE, row.names = 1))[,1]
   # Make sure eta.vec in same order as thetas
   eta.vec <- eta.vec[colnames(theta.param.vecs)]
-  # Use eta offset
-  eta.vec <- eta.vec + eta.offset
-  
   # Initialize xi.param.vecs with eta.vec; again, rows should be same
   # order as doc.length.vec
   xi.param.vecs <- matrix(eta.vec,nrow=D,ncol=K,byrow=TRUE,
                           dimnames=list(doc.ids,names(eta.vec)))
-
-  # Get the parent.child.list
-  parent.child.list <- get.parent.child.list(topic.address.book)
-
-  # Initialize mu hyperparameters
-  psi <- mean(mu.corpus.vec)
-  gamma2 <- var(mu.corpus.vec)
-
-  # Initialize tau2 hyperparameters (must line up with initialized tau2s
-  # for importance sampler to work)
-  # Note that only have one unique initialized tau2 for every word
-  optim.out <- profile.optim.gamma(tau2.param.vecs[,1])
-  inv.chisq.opt <- convert.hparams(par=c(optim.out$kappa,optim.out$lambda))
-  nu <- inv.chisq.opt[1]
-  sigma2 <- inv.chisq.opt[2]
+  print(eta.vec)
+  print(head(xi.param.vecs))
   
-  # Figure out if full Sigma matrix requested and then create one
-  # Ideally this will eventually be initialized as a scaled up
-  # version of the empirical cov matrix of the topic indicators
-  if(full.Sigma){
-    Sigma <- lambda2.start*diag(K)
-    Sigma.0 <- scale.Sigma.0*diag(K)
-  } else {Sigma.0 <- Sigma <- NULL}
   
   # Return list of initialized parameters
   current.param.list <- list(theta.param.vecs=theta.param.vecs,
@@ -117,7 +141,7 @@ initialize.params <- function(feature.count.list,doc.count.list,
                              xi.param.vecs=xi.param.vecs,
                              K=K,D=D,V=V,
                              psi=psi,gamma=sqrt(gamma2),
-                             lambda2=lambda2.start,
+                             lambda2=lambda2,
                              full.Sigma=full.Sigma,Sigma=Sigma,
                              Sigma.0=Sigma.0,kappa.0=kappa.0,
                              omega2.0=omega2.0,

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "process_reuters_lda_data_test[1-10]"
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+partition=test
+cutoff=500
+main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
+out_dir=${main_dir}mmm_raw_data/parsed_${partition}_data${cutoff}/
+
+# Create partition directory if doesn't already exist
+if [ ! -d $out_dir ]
+then
+   mkdir $out_dir
+fi
+
+# Run python script
+python ../process_parse_lda_data.py $partition $cutoff $main_dir

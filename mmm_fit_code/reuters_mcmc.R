@@ -4,6 +4,9 @@
 # Extract the command line arguments for relevant folders
 args <- commandArgs(TRUE)
 out.dir <- args[1]
+only.xi.update <- as.numeric(args[2])
+
+t0 <- proc.time()[3]
 
 # Load in fitting functions
 funct.dir <- "/n/home13/jbischof/reuters_prj/mmm_fit_code/mmm_fit_functions/"
@@ -80,16 +83,33 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
                             slave.file.root=slave.file.root)
                
 } else {
+  # only.xi.update a flag for initializing fold runs
+  if(only.xi.update){
+    tree.update <- FALSE
+    xi.update <- TRUE
+    hparam.update <- FALSE
+    ndraws.gibbs <- 15
+    Nupdate.hes <- 1
+  } else {
+    tree.update <- TRUE
+    xi.update <- TRUE
+    hparam.update <- TRUE
+    ndraws.gibbs <- 500
+    Nupdate.hes <- 1
+  }
   final.param.list <- hpd.gibbs.sampler(current.param.list=current.param.list,
                                         topic.address.book=topic.address.book,
-                                        ndraws.gibbs=2500,
+                                        ndraws.gibbs=ndraws.gibbs,
                                         verbose=FALSE,
                                         print.iter=TRUE,
                                         debug=FALSE,
                                         tree.job.list=tree.job.list,
                                         xi.job.list=xi.job.list,
-                                        tree.update=TRUE,xi.update=TRUE,
+                                        tree.update=tree.update,
+                                        xi.update=xi.update,
+                                        hparam.update=hparam.update,
                                         frac.doc.use=NULL,
+                                        Nupdate.hes=Nupdate.hes,
                                         file.current.param.list=file.current.param.list,
                                         file.ave.param.list=file.ave.param.list,
                                         file.final.param.list=file.final.param.list)

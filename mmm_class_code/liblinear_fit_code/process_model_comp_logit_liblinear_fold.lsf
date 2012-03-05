@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/bash
 
 # DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
 #BSUB -q airoldi
@@ -7,9 +7,9 @@
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "reuters_fit_train_setup"
+#BSUB -J "process_model_comp_liblinear_logit[1-10]"
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
-R --vanilla --no-save --args 36 60 /n/airoldifs1/jbischof/reuters_output/mmm_fits/fit_train/ parsed_train_data500/ < reuters_fit_setup.R
-
-
+main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
+cutoff=500
+./process_model_comp_liblinear.sh $main_dir $cutoff logit

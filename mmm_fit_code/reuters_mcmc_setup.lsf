@@ -16,6 +16,7 @@ main_dir=/n/airoldifs1/jbischof/reuters_output/
 out_dir=${main_dir}mmm_fits/fit_train${cutoff}/
 data_dir=${main_dir}mmm_raw_data/
 data_folder=parsed_train_data${cutoff}/
+file_ave_param_init=0
 
 # Create output directory if doesn't already exist
 if [ ! -d $out_dir ]
@@ -23,6 +24,6 @@ then
    mkdir $out_dir
 fi
 
-R --vanilla --no-save --args $nodes $out_dir $data_dir $data_folder $cutoff < reuters_mcmc_setup.R
+R --vanilla --no-save --args $nodes $out_dir $data_dir $data_folder $cutoff $file_ave_param_init < reuters_mcmc_setup.R
 
 

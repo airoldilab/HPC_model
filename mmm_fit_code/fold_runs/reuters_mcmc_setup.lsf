@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "reuters_mcmc_setup[1]"
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+cutoff=500
+nodes=40
+main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
+fit_dir=${main_dir}mmm_fits/
+out_dir=${fit_dir}fit_train${cutoff}/
+data_dir=${main_dir}mmm_raw_data/
+data_folder=parsed_train_data${cutoff}/
+file_ave_param_init=${fit_dir}ave_param_gibbs_INIT${cutoff}.RData
+
+# Create output directory if doesn't already exist
+if [ ! -d $out_dir ]
+then
+   mkdir $out_dir
+fi
+
+if [ ! file_ave_param_init==0 ]
+then
+   if [ -f ${out_dir}current_params.RData ]
+   then
+      rm ${out_dir}current_params.RData
+   fi
+fi
+
+R --vanilla --no-save --args $nodes $out_dir $data_dir $data_folder $cutoff $file_ave_param_init < ../reuters_mcmc_setup.R
+
+

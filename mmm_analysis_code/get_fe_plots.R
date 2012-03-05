@@ -33,6 +33,7 @@ logit.phi.parent.param.vecs <- logit(ave.param.list$phi.parent.param.vecs[kept.w
 phi.word.ids <- rownames(logit.phi.param.vecs)
 log.tau2.param.vecs <- log(ave.param.list$tau2.param.vecs[kept.word.ids,])
 tau2.word.ids <- rownames(log.tau2.param.vecs)
+parent.child.list <- ave.param.list$parent.child.list
 
 # Get list of topics
 topics <-  colnames(mu.param.vecs)
@@ -41,6 +42,9 @@ if(test){topics <- topics[1:5]}
 # Load up topic dictionary
 topic.dict <- read.table("~/reuters_prj/mmm_analysis_code/topic_codes.txt",
                          sep="\t",row.names=1,as.is=TRUE)
+# Load in data address book
+topic.address.book <- read.table("reuters_topic_address_book.txt",
+                                 header=TRUE,as.is=TRUE)
 
 # Figure out which topic don't have siblings
 one.child <- logit.phi.param.vecs[1,] == Inf
@@ -57,6 +61,12 @@ for (topic in topics){
   if(one.child[topic]){ logit.phi.vec <- logit.phi.parent.param.vecs[,topic]
   } else { logit.phi.vec <- logit.phi.param.vecs[,topic]}
 
+  # Figure out baseline
+  pos.tab <- which(topic.address.book[,"topic"]==topic)
+  parent <- topic.address.book[pos.tab,"parent"]
+  nchild <- length(parent.child.list[[parent]])
+  baseline <- logit(1/nchild)
+
   gen.fe.plot(mu.vec=mu.vec,logit.phi.vec=logit.phi.vec,
               topic=topic,
               fe.full.dir=fe.full.dir,
@@ -66,7 +76,8 @@ for (topic in topics){
               res.plot=200,
               size.inch=7,
               lower.quant.cut.full=0.01,
-              upper.quant.zoom=0.95)
+              upper.quant.zoom=0.95,
+              baseline=baseline)
     
   ## # Get quantiles of each dimension
   ## quant.mu <- quantile(mu.vec,probs=c(0.01,0.95,0.99))

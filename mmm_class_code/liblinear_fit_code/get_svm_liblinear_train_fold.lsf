@@ -10,6 +10,16 @@
 #BSUB -J "get_svm_liblinear_train[1-10]"
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+model=svm
 main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
-cutoff=250
-python ../mmm_class_functions/liblinear_train.py $main_dir $cutoff svm
+class_dir=${main_dir}mmm_class_out/
+cutoff=500
+out_dir=${class_dir}${model}_liblinear_fits${cutoff}/
+
+# Create output directory if doesn't already exist
+if [ ! -d $out_dir ]
+then
+mkdir $out_dir
+fi
+
+python ../mmm_class_functions/liblinear_train.py $main_dir $cutoff $model

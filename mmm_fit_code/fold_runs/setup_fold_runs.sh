@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cutoff=250
+cutoff=500
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 raw_data_dir=${main_dir}mmm_raw_data/
 fit_data_dir=${main_dir}mmm_fits/

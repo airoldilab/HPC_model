@@ -27,13 +27,22 @@ file_kept_word_stems=${analysis_dir}kept_word_id_stems${cutoff}.txt
 # Rscript find_top_sem_cont_words.R $fit_dir $analysis_dir $file_ave_params $file_kept_word_stems $nwords_get $weight_phi
 
 
-# Step 4: Get comparison of top fe and top freq words for paper
-n_use=14
-Rscript get_fe_freq_comp.R ${analysis_dir} $n_use
+# # Step 4: Get comparison of top fe and top freq words for paper
+# n_use=14
+# Rscript get_fe_freq_comp.R ${analysis_dir} $n_use
 
-# # Step 5: Get summary of tau2 distribution
-# Rscript get_tau2_sum.R $analysis_dir $file_ave_params $cutoff
 
+# Step 5: Get comparison between regular and stop words
+stop_reg_dir=${analysis_dir}stop_reg_plots/
+if [ -d $stop_reg_dir ]
+then
+   rm -r $stop_reg_dir
+fi
+mkdir $stop_reg_dir
+
+Rscript get_stop_reg_comp.R $analysis_dir $file_ave_params $cutoff $file_kept_word_stems
+
+# 
 # # Step 6: Get fe plots by topic
 # # Create output directory if doesn't already exist
 # fe_dir=${analysis_dir}fe_plots/
@@ -67,9 +76,9 @@ Rscript get_fe_freq_comp.R ${analysis_dir} $n_use
 # mkdir $tp_dir
 # 
 # Rscript get_tau2_phi_plots.R $analysis_dir $file_ave_params $file_kept_word_stems
-# 
-# 
-# 
+
+
+
 # # Step 8: Get tau2 plots by parent topic
 # # Create output directory if doesn't already exist
 # tau2_dist_dir=${analysis_dir}tau2_dist_plots/

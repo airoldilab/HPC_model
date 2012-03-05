@@ -55,7 +55,7 @@ for (topic in topics){
   mu.vec.quant <- ecdf(mu.vec)(mu.vec) 
   logit.phi.quant <- ecdf(logit.phi.vec)(logit.phi.vec)
 
-  # Get requested convex combination and store in matrix
+  # Get requested average and store in matrix
   sem.cont.score <- 1/(weight.phi/mu.vec.quant + (1-weight.phi)/logit.phi.quant)
   sem.cont.vecs[,topic] <- sem.cont.score
 }

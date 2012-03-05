@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/bash
 
 # DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
 #BSUB -q airoldi
@@ -7,6 +7,9 @@
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "reuters_fit_train_setup"
+#BSUB -J "setup_fold_dirs[2-10]"
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+./setup_fold_dirs_p2.sh ${LSB_JOBINDEX}
+
+

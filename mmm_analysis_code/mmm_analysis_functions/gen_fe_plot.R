@@ -9,7 +9,8 @@ gen.fe.plot <- function(mu.vec,logit.phi.vec,topic,
                         res.plot=200,
                         size.inch=8,
                         lower.quant.cut.full=0.01,
-                        upper.quant.zoom=0.95){
+                        upper.quant.zoom=0.95,
+                        baseline=NULL){
 
   
   
@@ -108,6 +109,11 @@ gen.fe.plot <- function(mu.vec,logit.phi.vec,topic,
        xright=lim.mu[2]+mar.mu,
        ytop=lim.phi[2]+mar.phi,
        density = NULL, angle = 45,
-       col = NULL, border = "red", lty = par("lty"), lwd = par("lwd"))
+       col = NULL, border = "red", lty = 2, lwd = 2)
+  if(!is.null(baseline)){
+    abline(h=baseline,col="red",lwd=2)
+    legend(x="topleft",lwd=c(2,2),legend=c("1/C baseline","Top 5% words"),
+           col="red",lty=c(1,2))
+  }
   dev.off()
 }

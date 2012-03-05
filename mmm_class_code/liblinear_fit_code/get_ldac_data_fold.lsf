@@ -7,20 +7,19 @@
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "get_logit_liblinear_train[1-10]"
+#BSUB -J "get_ldac_data[1-10]"
+
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
-model=logit
 main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
-class_dir=${main_dir}mmm_class_out/
 cutoff=500
-out_dir=${class_dir}${model}_liblinear_fits${cutoff}/
+raw_data_dir=${main_dir}mmm_raw_data/
+out_dir=${raw_data_dir}ldac_data/
 
 # Create output directory if doesn't already exist
 if [ ! -d $out_dir ]
 then
-mkdir $out_dir
+   mkdir $out_dir
 fi
 
-
-python ../mmm_class_functions/liblinear_train.py $main_dir $cutoff $model
+python ../mmm_class_functions/translate_data_for_ldac.py $main_dir $cutoff

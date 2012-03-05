@@ -1,18 +1,20 @@
 #!/bin/bash
 
 # QUEUE
-#BSUB -q normal_serial
+#BSUB -q airoldi
 
 # EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "translate_lda_data"
+#BSUB -J "get_ldac_data"
 
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 main_dir=/n/airoldifs1/jbischof/reuters_output/
+cutoff=500
 raw_data_dir=${main_dir}mmm_raw_data/
 out_dir=${raw_data_dir}ldac_data/
-cutoff=500
 
 # Create output directory if doesn't already exist
 if [ ! -d $out_dir ]
@@ -20,4 +22,4 @@ then
    mkdir $out_dir
 fi
 
-python ../mmm_class_functions/translate_data_for_ldac.py ${main_dir} ${cutoff}
+python ../mmm_class_functions/translate_data_for_ldac.py $main_dir $cutoff

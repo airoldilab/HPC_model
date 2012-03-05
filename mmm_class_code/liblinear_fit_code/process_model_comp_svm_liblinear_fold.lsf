@@ -7,9 +7,9 @@
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "process_model_comp_liblinear"
+#BSUB -J "process_model_comp_liblinear_svm[1-10]"
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
-main_dir=/n/airoldifs1/jbischof/reuters_output/
+main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
 cutoff=500
-./process_model_comp_liblinear.sh $main_dir $cutoff logit
+./process_model_comp_liblinear.sh $main_dir $cutoff svm

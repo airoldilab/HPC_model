@@ -10,6 +10,7 @@ dir.out <- args[2]
 data.dir <- args[3]
 data.folder <- args[4]
 cutoff <- args[5]
+file.ave.param.init <- args[6]
 obs.data.dir <- paste(data.dir,data.folder,sep="")
 
 # Load in fitting functions
@@ -46,12 +47,20 @@ doc.topic.list <- data.list$doc.topic.list
 
 
 # Initialization files
-#filename.doc.xi <- paste(obs.data.dir,"doc_xi_list.RData",sep="")
-filename.eta.vec <- paste(obs.data.dir,"eta_vec.txt",sep="")
 filename.theta.param.vecs <- paste(obs.data.dir,"initialized_theta_sparse.RData",sep="")
-filename.mu.param.vecs <- paste(obs.data.dir,"initialized_mu",cutoff,".txt",sep="")
-filename.mu.corpus.vec <- paste(obs.data.dir,"initialized_corpus_mu",cutoff,".txt",sep="")
-filename.tau2.vec <- paste(obs.data.dir,"initialized_tau2",cutoff,".txt",sep="")
+if(!file.ave.param.init=="0"){
+  filename.eta.vec <- NULL
+  filename.mu.param.vecs <- NULL
+  filename.mu.corpus.vec <- NULL
+  filename.tau2.vec <- NULL
+  } else {
+    #filename.doc.xi <- paste(obs.data.dir,"doc_xi_list.RData",sep="")
+    filename.eta.vec <- paste(obs.data.dir,"eta_vec.txt",sep="")
+    filename.mu.param.vecs <- paste(obs.data.dir,"initialized_mu",cutoff,".txt",sep="")
+    filename.mu.corpus.vec <- paste(obs.data.dir,"initialized_corpus_mu",cutoff,".txt",sep="")
+    filename.tau2.vec <- paste(obs.data.dir,"initialized_tau2",cutoff,".txt",sep="")
+    filename.ave.params <- NULL
+  }
 
 # Set up current.param.list from initialized parameters
 current.param.list <-
@@ -59,6 +68,7 @@ current.param.list <-
                     doc.count.list=doc.count.list,
                     doc.length.vec=doc.length.vec,
                     doc.topic.list=doc.topic.list,
+                    filename.ave.params=file.ave.param.init,
                     filename.mu.param.vecs=filename.mu.param.vecs,
                     filename.mu.corpus.vec=filename.mu.corpus.vec,
                     filename.tau2.vec=filename.tau2.vec,

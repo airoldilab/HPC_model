@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/bash
 
 # DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
 #BSUB -q airoldi

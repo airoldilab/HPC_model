@@ -14,6 +14,7 @@ hpd.gibbs.sampler <- function(current.param.list,
                               file.final.param.list=NULL,
                               file.ave.param.list=NULL,
                               tree.update=TRUE,xi.update=TRUE,
+                              hparam.update=TRUE,
                               # Use case control sampling
                               # Regretfully ineffective
                               Ndoc.case.control=NULL,
@@ -53,25 +54,6 @@ hpd.gibbs.sampler <- function(current.param.list,
   for(i in 1:ndraws.gibbs){
     if(print.iter){cat(paste("\nGlobal iteration",i,"\n"))}
     
-    if(tree.update){
-      # Cycle through all words and draw tree parameters
-      # Draw tree parameters using MPI
-      # Tell slave nodes to prepare to draw tree parameters
-      cat("Tree draws\n")
-      master.param.fn(param.tag=5)
-      # Refresh the likelihood hessian if on first iteration or each 100 iters
-      update.hessian.like <- i %in% hes.sched
-      tree.master.out <- tree.master.fn(tree.job.list=tree.job.list,
-                                        current.param.list=current.param.list,
-                                        update.hessian.like=update.hessian.like)
-      current.param.list <- tree.master.out
-      if(xi.update){
-        # Write out new current.param.list to pass along to xi update
-        save(current.param.list,file=file.current.param.list)
-      }
-    }
-    
-    
     if(xi.update){
       # Cycle through all docs and draw membership parameters
       # Draw xis using MPI
@@ -90,29 +72,50 @@ hpd.gibbs.sampler <- function(current.param.list,
       current.param.list$theta.param.vecs <-
         as(xi.master.out$theta.param.vecs,"sparseMatrix")
       current.param.list$xi.param.vecs <- xi.master.out$xi.param.vecs
+      if(tree.update){
+        # Write out new current.param.list to pass along to tree update
+        save(current.param.list,file=file.current.param.list)
+      }
     }
-    
-    
-    # Draw hyperameters
-    hparam.outlist <- hparam.draw(current.param.list=current.param.list,
-                                  tree.update=tree.update,xi.update=xi.update,
-                                  frac.doc.use=frac.doc.use,xi.updated=xi.updated)
+
     
     if(tree.update){
-      current.param.list$psi <- hparam.outlist$psi
-      current.param.list$gamma <- hparam.outlist$gamma
-      current.param.list$nu <- hparam.outlist$nu
-      current.param.list$sigma2 <- hparam.outlist$sigma2
+      # Cycle through all words and draw tree parameters
+      # Draw tree parameters using MPI
+      # Tell slave nodes to prepare to draw tree parameters
+      cat("Tree draws\n")
+      master.param.fn(param.tag=5)
+      # Refresh the likelihood hessian if on first iteration or each 100 iters
+      update.hessian.like <- i %in% hes.sched
+      tree.master.out <- tree.master.fn(tree.job.list=tree.job.list,
+                                        current.param.list=current.param.list,
+                                        update.hessian.like=update.hessian.like)
+      current.param.list <- tree.master.out
     }
     
-    if(xi.update){
-      current.param.list$eta.vec <- hparam.outlist$eta.vec
-      if(current.param.list$full.Sigma){
-        current.param.list$Sigma <- hparam.outlist$Sigma
-        hparam.outlist$Sigma <- diag(hparam.outlist$Sigma)
-      } else {current.param.list$lambda2 <- hparam.outlist$lambda2}
+
+    # Draw hyperameters
+    if(hparam.update){
+      hparam.outlist <- hparam.draw(current.param.list=current.param.list,
+                                    tree.update=tree.update,xi.update=xi.update,
+                                    frac.doc.use=frac.doc.use,xi.updated=xi.updated)
+      
+      if(tree.update){
+        current.param.list$psi <- hparam.outlist$psi
+        current.param.list$gamma <- hparam.outlist$gamma
+        current.param.list$nu <- hparam.outlist$nu
+        current.param.list$sigma2 <- hparam.outlist$sigma2
+      }
+      
+      if(xi.update){
+        current.param.list$eta.vec <- hparam.outlist$eta.vec
+        if(current.param.list$full.Sigma){
+          current.param.list$Sigma <- hparam.outlist$Sigma
+          hparam.outlist$Sigma <- diag(hparam.outlist$Sigma)
+        } else {current.param.list$lambda2 <- hparam.outlist$lambda2}
+      }
+      print(hparam.outlist)
     }
-    print(hparam.outlist)
 
     
     # Write out new current.param.list
