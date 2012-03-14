@@ -22,6 +22,7 @@ nodes=40
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 dir_out=${main_dir}mmm_fits/fit_train${cutoff}/
 # Only update the affinity paramters?
-only_xi_update=1
+start_run=0
+fold_init=0
 
-mpirun -np ${nodes} Rscript reuters_mcmc.R $dir_out $only_xi_update
+mpirun -np ${nodes} Rscript reuters_mcmc.R $dir_out $start_run $fold_init

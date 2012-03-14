@@ -7,14 +7,14 @@
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "reuters_mcmc[1]"
+#BSUB -J "reuters_mcmc[4-5]"
 
 # Number of cores requested
 #BSUB -n 40
 
 # -R "span[ptile=6]"
 
-#BSUB -a openmpi 
+#BSUB -a openmpi
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
@@ -22,6 +22,7 @@ nodes=40
 main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
 dir_out=${main_dir}mmm_fits/fit_train${cutoff}/
 # Only update the affinity paramters?
-only_xi_update=0
+start_run=0
+fold_init=0
 
-mpirun -np ${nodes} Rscript ../reuters_mcmc.R $dir_out $only_xi_update
+mpirun -np ${nodes} Rscript ../reuters_mcmc.R $dir_out $start_run $fold_init

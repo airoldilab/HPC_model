@@ -6,7 +6,8 @@ hpd.gibbs.sampler <- function(current.param.list,
                               #feature.count.list=NULL,
                               #doc.count.list=NULL,
                               topic.address.book=NULL,
-                              ndraws.gibbs=1500,Nupdate.hes=3,
+                              ndraws.gibbs=1500,burnin=0,
+                              Nupdate.hes=3,
                               verbose=FALSE,
                               print.iter=FALSE,debug=FALSE,
                               tree.job.list=NULL,xi.job.list=NULL,
@@ -22,6 +23,7 @@ hpd.gibbs.sampler <- function(current.param.list,
                               # Use less than all the documents for Gibbs sampler?
                               # (helpful to speed convergence)
                               frac.doc.use=NULL,
+                              # For how many words and docs should record entire sample path?
                               nwords.trace=50,ndocs.trace=50,
                               ndraws.save=5){
   
@@ -121,16 +123,19 @@ hpd.gibbs.sampler <- function(current.param.list,
     # Write out new current.param.list
     save(current.param.list,file=file.current.param.list)
     
-
+    
     # Store the latest draws
     final.param.list <- store.param.draws(i=i,current.param.list=current.param.list,
                                           final.param.list=final.param.list,
                                           tree.update=tree.update,xi.update=xi.update)
-
-    # Update desired expectations
-    ave.param.list <- update.average.params(i=i,current.param.list=current.param.list,
-                                            ave.param.list=ave.param.list,
-                                            tree.update=tree.update,xi.update=xi.update)
+    
+    # Update desired expectations if after burnin period
+    if(i > burnin){
+      ave.param.list <- update.average.params(i=i-burnin,current.param.list=current.param.list,
+                                              ave.param.list=ave.param.list,
+                                              tree.update=tree.update,xi.update=xi.update,
+                                              hparam.update=hparam.update)
+    }
     
     # Write out new final.param.list and ave.param.list every ndraws.save draws
     if(i %% ndraws.save == 0){
@@ -284,7 +289,8 @@ store.param.draws <- function(i,current.param.list,final.param.list,
 
 # Function to update posterior expectation of parameters
 update.average.params <- function(i,current.param.list,ave.param.list,
-                                  tree.update=TRUE,xi.update=TRUE){
+                                  tree.update=TRUE,xi.update=TRUE,
+                                  hparam.update=TRUE){
 
   # Get relative weights
   weight.current <- (i-1)/i
@@ -295,10 +301,12 @@ update.average.params <- function(i,current.param.list,ave.param.list,
       ave.param.list$mu.param.vecs <- current.param.list$mu.param.vecs
       ave.param.list$mu.corpus.vec <- current.param.list$mu.corpus.vec
       ave.param.list$tau2.param.vecs <- current.param.list$tau2.param.vecs
-      ave.param.list$psi <- current.param.list$psi
-      ave.param.list$gamma <- current.param.list$gamma
-      ave.param.list$nu <- current.param.list$nu
-      ave.param.list$sigma2 <- current.param.list$sigma2
+      if(hparam.update){
+        ave.param.list$psi <- current.param.list$psi
+        ave.param.list$gamma <- current.param.list$gamma
+        ave.param.list$nu <- current.param.list$nu
+        ave.param.list$sigma2 <- current.param.list$sigma2
+      }
     } else {
       ave.param.list$mu.param.vecs <- weight.current*ave.param.list$mu.param.vecs +
         weight.new*current.param.list$mu.param.vecs
@@ -306,14 +314,16 @@ update.average.params <- function(i,current.param.list,ave.param.list,
         weight.new*current.param.list$mu.corpus.vec
       ave.param.list$tau2.param.vecs <- weight.current*ave.param.list$tau2.param.vecs +
         weight.new*current.param.list$tau2.param.vecs
-      ave.param.list$psi <- weight.current*ave.param.list$psi +
-        weight.new*current.param.list$psi
-      ave.param.list$gamma <- weight.current*ave.param.list$gamma +
-        weight.new*current.param.list$gamma
-      ave.param.list$nu <- weight.current*ave.param.list$nu +
-        weight.new*current.param.list$nu
-      ave.param.list$sigma2 <- weight.current*ave.param.list$sigma2 +
-        weight.new*current.param.list$sigma2
+      if(hparam.update){
+        ave.param.list$psi <- weight.current*ave.param.list$psi +
+          weight.new*current.param.list$psi
+        ave.param.list$gamma <- weight.current*ave.param.list$gamma +
+          weight.new*current.param.list$gamma
+        ave.param.list$nu <- weight.current*ave.param.list$nu +
+          weight.new*current.param.list$nu
+        ave.param.list$sigma2 <- weight.current*ave.param.list$sigma2 +
+          weight.new*current.param.list$sigma2
+      }
     }
     
     # Update phis
@@ -343,17 +353,21 @@ update.average.params <- function(i,current.param.list,ave.param.list,
     if(i==1){
       ave.param.list$xi.param.vecs <- current.param.list$xi.param.vecs
       ave.param.list$theta.param.vecs <- current.param.list$theta.param.vecs
-      ave.param.list$eta.vec <- current.param.list$eta.vec
-      ave.param.list$lambda2 <- current.param.list$lambda2
+      if(hparam.update){
+        ave.param.list$eta.vec <- current.param.list$eta.vec
+        ave.param.list$lambda2 <- current.param.list$lambda2
+      }
     } else {
       ave.param.list$xi.param.vecs <- weight.current*ave.param.list$xi.param.vecs +
         weight.new*current.param.list$xi.param.vecs
       ave.param.list$theta.param.vecs <- weight.current*ave.param.list$theta.param.vecs +
         weight.new*current.param.list$theta.param.vecs
-      ave.param.list$lambda2 <- weight.current*ave.param.list$lambda2 +
-        weight.new*current.param.list$lambda2
-      ave.param.list$eta.vec <- weight.current*ave.param.list$eta.vec +
-        weight.new*current.param.list$eta.vec
+      if(hparam.update){
+        ave.param.list$lambda2 <- weight.current*ave.param.list$lambda2 +
+          weight.new*current.param.list$lambda2
+        ave.param.list$eta.vec <- weight.current*ave.param.list$eta.vec +
+          weight.new*current.param.list$eta.vec
+      }
     }}
     
   return(ave.param.list)

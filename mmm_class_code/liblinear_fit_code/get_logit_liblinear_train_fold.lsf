@@ -19,7 +19,7 @@ out_dir=${class_dir}${model}_liblinear_fits${cutoff}/
 # Create output directory if doesn't already exist
 if [ ! -d $out_dir ]
 then
-mkdir $out_dir
+   mkdir $out_dir
 fi
 
 

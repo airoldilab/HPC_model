@@ -4,7 +4,8 @@
 # Extract the command line arguments for relevant folders
 args <- commandArgs(TRUE)
 out.dir <- args[1]
-only.xi.update <- as.numeric(args[2])
+first.run <- as.numeric(args[2])
+fold.init <- as.numeric(args[3])
 
 t0 <- proc.time()[3]
 
@@ -44,7 +45,7 @@ mpi.rank <- mpi.start.list$mpi.rank
 
 # Figure out if master or slave
 is.master <- mpi.rank == mpi.root
-  
+
 # Set up file to save current parameters as updating
 file.current.param.list <- paste(out.dir,"current_params.RData",sep="")
 file.ave.param.list <- paste(out.dir,"ave_params_gibbs.RData",sep="")
@@ -55,8 +56,13 @@ slave.file.root <- paste(out.dir,"slave_data",sep="")
 if(is.master){
   # Load in initialized parameters
   # If already have results from previous run, start from there
-  is.initialized <- length(grep(pattern="current_params.RData",x=dir(out.dir))) > 0
-  #is.initialized <- FALSE
+
+  # If a fold.init run, always use initialized parameters
+  if(fold.init){ is.initialized <- FALSE
+    } else {
+      is.initialized <- length(grep(pattern="current_params.RData",x=dir(out.dir))) > 0
+    }
+  
   if(is.initialized){load(file.current.param.list)
                      cat("Parameters from old run loaded\n")
   } else {
@@ -83,23 +89,34 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
                             slave.file.root=slave.file.root)
                
 } else {
-  # only.xi.update a flag for initializing fold runs
-  if(only.xi.update){
+  # Set Gibbs sampler parameters
+  if(first.run){
+    tree.update <- TRUE
+    xi.update <- TRUE
+    hparam.update <- TRUE
+    ndraws.gibbs <- 1000
+    Nupdate.hes <- 2
+    burnin <- 500
+  } else if(fold.init){
     tree.update <- FALSE
     xi.update <- TRUE
     hparam.update <- FALSE
-    ndraws.gibbs <- 15
+    ndraws.gibbs <- 25
     Nupdate.hes <- 1
+    burnin <- 0
   } else {
     tree.update <- TRUE
     xi.update <- TRUE
     hparam.update <- TRUE
-    ndraws.gibbs <- 500
+    ndraws.gibbs <- 1000
     Nupdate.hes <- 1
+    burnin <- 0
   }
+  
   final.param.list <- hpd.gibbs.sampler(current.param.list=current.param.list,
                                         topic.address.book=topic.address.book,
                                         ndraws.gibbs=ndraws.gibbs,
+                                        burnin=burnin,
                                         verbose=FALSE,
                                         print.iter=TRUE,
                                         debug=FALSE,
@@ -122,14 +139,14 @@ if(is.master){
   cat(sprintf("Finished in %f seconds\n",t1-t0))
 }
 
-# Have master remove all the special data objects created for the slaves
-if(is.master){
-  n.slaves <- mpi.comm.size(0)-1
-  for(slave.id in 1:n.slaves){
-    file.rm <- paste(slave.file.root,slave.id,".RData",sep="")
-    system(paste("rm",file.rm))
-  }
-}
+## # Have master remove all the special data objects created for the slaves
+## if(is.master){
+##   n.slaves <- mpi.comm.size(0)-1
+##   for(slave.id in 1:n.slaves){
+##     file.rm <- paste(slave.file.root,slave.id,".RData",sep="")
+##     system(paste("rm",file.rm))
+##   }
+## }
 
 # Close down mpi
 mpi.admin("close")

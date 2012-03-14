@@ -7,7 +7,7 @@
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "reuters_mcmc_setup[1]"
+#BSUB -J "reuters_mcmc_setup[4-5]"
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
@@ -17,7 +17,8 @@ fit_dir=${main_dir}mmm_fits/
 out_dir=${fit_dir}fit_train${cutoff}/
 data_dir=${main_dir}mmm_raw_data/
 data_folder=parsed_train_data${cutoff}/
-file_ave_param_init=${fit_dir}ave_param_gibbs_INIT${cutoff}.RData
+#file_ave_param_init=${fit_dir}ave_param_gibbs_INIT${cutoff}.RData
+file_ave_param_init=${out_dir}ave_params_gibbs.RData
 
 # Create output directory if doesn't already exist
 if [ ! -d $out_dir ]

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # QUEUE
-#BSUB -q normal_serial
+#BSUB -q airoldi
 
 # EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
 #BSUB -u jbischof@fas.harvard.edu
@@ -19,7 +19,7 @@ out_dir=${class_dir}${model}_liblinear_fits${cutoff}/
 # Create output directory if doesn't already exist
 if [ ! -d $out_dir ]
 then
-mkdir $out_dir
+   mkdir $out_dir
 fi
 
 python ../mmm_class_functions/liblinear_train.py $main_dir $cutoff $model
