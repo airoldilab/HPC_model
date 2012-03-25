@@ -2,9 +2,12 @@
 # i.e., train, valid, or test, as well as original dataset fit to LDA
 
 import string
+import sys
+
+main_dir = sys.argv[1]
 
 # Directories
-main_dir = "/n/airoldifs1/jbischof/reuters_output/"
+#main_dir = "/n/airoldifs1/jbischof/reuters_output/"
 raw_data_dir = main_dir + "mmm_raw_data/"
 class_dir = main_dir + "mmm_class_out/"
 

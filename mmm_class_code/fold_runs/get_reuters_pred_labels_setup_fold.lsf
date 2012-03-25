@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "get_reuters_pred_labels_setup[1-10]"
+
+cutoff=500
+nodes=10
+partition=test
+main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
+out_dir=${main_dir}mmm_class_out/${partition}_slave_data${cutoff}/
+fit_dir=${main_dir}mmm_fits/fit_train${cutoff}/
+data_dir=${main_dir}mmm_raw_data/
+data_folder=parsed_${partition}_data${cutoff}/
+initial=1
+
+# Load up finished job ids if this not initial run
+if [ $inital==1 ]
+then
+   cleanup_file=0
+else
+   class_dir=${main_dir}mmm_class_out/
+   cleanup_file=${class_dir}${partition}_class_${cutoff}/jobs_to_do.txt
+fi
+
+# Create output directory if doesn't already exist; otherwise
+# delete all the old files if they are still around
+if [ ! -d $out_dir ]
+then
+   mkdir $out_dir
+else 
+   rm $out_dir/slave_data*
+fi
+
+R --vanilla --no-save --args $nodes $out_dir $data_dir $data_folder $fit_dir $cutoff $cleanup_file < ../get_reuters_pred_labels_setup.R
+
+

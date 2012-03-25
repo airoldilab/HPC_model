@@ -94,7 +94,7 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
     tree.update <- TRUE
     xi.update <- TRUE
     hparam.update <- TRUE
-    ndraws.gibbs <- 1000
+    ndraws.gibbs <- 1500
     Nupdate.hes <- 2
     burnin <- 500
   } else if(fold.init){

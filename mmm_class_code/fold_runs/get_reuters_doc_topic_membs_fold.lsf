@@ -7,9 +7,9 @@
 #BSUB -u jbischof@fas.harvard.edu
 
 # THE JOB ARRAY:
-#BSUB -J "get_partition_doc_ids"
+#BSUB -J "get_reuters_doc_topic_membs[1-10]"
 
-main_dir=/n/airoldifs1/jbischof/reuters_output/
+main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
-python mmm_class_functions/get_partition_doc_ids.py $main_dir
+python ../mmm_class_functions/process_get_reuters_doc_topic_membs.py $main_dir

@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Desired queue
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "get_reuters_pred_labels_test10[1-10]"
+
+# THE OUTPUT FILES, I STRONGLY SUGGEST DUMPING THESE IN A SEPARATE DIRECTORY!
+#BSUB -o /n/home13/jbischof/jbischof/reuters_output/mmm_class_out/LSF_dump/out_%J.%I
+#BSUB -e /n/home13/jbischof/jbischof/reuters_output/mmm_class_out/LSF_dump/error_%J.%I
+
+# Options good for big job arrays
+#BSUB -r
+#BSUB -mig 0
+
+# -R rusage[mem=5000]
+
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+max_only=1
+cutoff=500
+nodes=10
+partition=test
+main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold10/
+slave_data_dir=${main_dir}mmm_class_out/${partition}_slave_data${cutoff}/
+out_dir=${main_dir}mmm_class_out/${partition}_class_${cutoff}/
+slave_id=${LSB_JOBINDEX}
+
+# Create output directory if doesn't already exist
+if [ ! -d $out_dir ]
+then
+   mkdir $out_dir
+fi
+
+Rscript ../get_reuters_pred_labels.R $slave_data_dir $slave_id $cutoff $out_dir $max_only
