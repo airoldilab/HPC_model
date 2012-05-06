@@ -33,11 +33,15 @@ for( partition in c("valid","test") ) {
     file.load <- paste(liblinear.dir,file.load.root,sep="")
     print(file.load)
     topic.prob.table <- read.table(file.load,as.is=TRUE,header=TRUE)
-    topic.probs <- t(topic.prob.table[,3])
-    topic.prob.vecs <- rbind(topic.prob.vecs,topic.probs)
+    if(ncol(topic.prob.table)==2){
+      topic.prob.vecs <- cbind(topic.prob.vecs,0)
+    } else {
+      topic.probs <- topic.prob.table[,3]
+      topic.prob.vecs <- cbind(topic.prob.vecs,topic.probs)
+    }
   }
   
-  topic.prob.vecs <- t(topic.prob.vecs)
+  #topic.prob.vecs <- t(topic.prob.vecs)
   rownames(topic.prob.vecs) <- part.doc.ids
   colnames(topic.prob.vecs) <- topics
 

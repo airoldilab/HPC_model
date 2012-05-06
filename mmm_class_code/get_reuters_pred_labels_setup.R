@@ -73,7 +73,7 @@ out.job.lists <- get.job.lists.and.data(doc.count.list.orig=doc.count.list,
                                         doc.ids=doc.ids,
                                         n.slaves=n.slaves,slave.file.root=slave.file.root,
                                         verbose=TRUE,classify=TRUE)
-
+print(paste("Jobs left:",length(doc.ids)))
 xi.job.list <- out.job.lists$xi.job.list
 
 outfile.joblist <- paste(out.dir,"class_joblist.RData",sep="")

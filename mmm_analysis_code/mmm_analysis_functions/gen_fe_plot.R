@@ -53,7 +53,7 @@ gen.fe.plot <- function(mu.vec,logit.phi.vec,topic,
   
   # Create zoom plot
   cex.plot <- 0.6
-  title.plot <- paste("Upper 5% of FE plot for",topic.name)
+  title.plot <- paste("Upper 5% of FREX plot for",topic.name)
   title.png <- paste(fe.zoom.dir,"fe_zoom_plot_",topic,".png",sep="")
   png(title.png,width=size.inch,height=size.inch,units="in",res=res.plot)
   plot(mu.vec.zoom,logit.phi.vec.zoom,main=title.plot,
@@ -67,7 +67,7 @@ gen.fe.plot <- function(mu.vec,logit.phi.vec,topic,
   # Set up side-by-side plot
   title.png <- paste(fe.joint.dir,"fe_joint_plot_",topic,".png",sep="")
   png(title.png,width=size.inch*2,height=size.inch,units="in",res=res.plot)
-  title.plot <- paste("FE plot for",topic.name)
+  title.plot <- paste("FREX plot for",topic.name)
   par(mfrow=c(1,2),mar=c(5, 4, 0, 2)+0.1, oma=c(0,0,4,0))
   plot(mu.vec.full,logit.phi.vec.full,
        #main=title.plot,
@@ -98,7 +98,7 @@ gen.fe.plot <- function(mu.vec,logit.phi.vec,topic,
 
   
   
-  title.plot <- paste("FE plot for",topic.name)
+  title.plot <- paste("FREX plot for",topic.name)
   title.png <- paste(fe.full.dir,"fe_plot_",topic,".png",sep="")
   png(title.png,width=size.inch,height=size.inch,units="in",res=res.plot)
   plot(mu.vec.full,logit.phi.vec.full,main=title.plot,

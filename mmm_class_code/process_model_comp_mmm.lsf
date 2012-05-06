@@ -14,4 +14,12 @@
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 main_dir=/n/airoldifs1/jbischof/reuters_output/
 cutoff=500
+out_dir=${main_dir}mmm_class_out/topic_class_out/
+
+# Create output directory if doesn't already exist
+if [ ! -d $out_dir ]
+then
+   mkdir $out_dir
+fi
+
 ./process_model_comp_mmm.sh $main_dir $cutoff

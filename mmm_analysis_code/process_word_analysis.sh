@@ -32,37 +32,37 @@ file_kept_word_stems=${analysis_dir}kept_word_id_stems${cutoff}.txt
 # Rscript get_fe_freq_comp.R ${analysis_dir} $n_use
 
 
-# Step 5: Get comparison between regular and stop words
-stop_reg_dir=${analysis_dir}stop_reg_plots/
-if [ -d $stop_reg_dir ]
-then
-   rm -r $stop_reg_dir
-fi
-mkdir $stop_reg_dir
-
-Rscript get_stop_reg_comp.R $analysis_dir $file_ave_params $cutoff $file_kept_word_stems
-
-# 
-# # Step 6: Get fe plots by topic
-# # Create output directory if doesn't already exist
-# fe_dir=${analysis_dir}fe_plots/
-# fe_full_dir=${fe_dir}full_plots/
-# fe_zoom_dir=${fe_dir}zoom_plots/
-# fe_joint_dir=${fe_dir}joint_plots/
-# 
-# # Is this a trial run?
-# test=0
-# 
-# if [ -d $fe_dir ]
+# # Step 5: Get comparison between regular and stop words
+# stop_reg_dir=${analysis_dir}stop_reg_plots/
+# if [ -d $stop_reg_dir ]
 # then
-#    rm -r $fe_dir
+#    rm -r $stop_reg_dir
 # fi
-# mkdir $fe_dir
-# mkdir $fe_full_dir
-# mkdir $fe_zoom_dir
-# mkdir $fe_joint_dir
+# mkdir $stop_reg_dir
 # 
-# Rscript get_fe_plots.R $analysis_dir $file_ave_params $file_kept_word_stems $test
+# Rscript get_stop_reg_comp.R $analysis_dir $file_ave_params $cutoff $file_kept_word_stems
+
+# 
+# Step 6: Get fe plots by topic
+# Create output directory if doesn't already exist
+fe_dir=${analysis_dir}fe_plots/
+fe_full_dir=${fe_dir}full_plots/
+fe_zoom_dir=${fe_dir}zoom_plots/
+fe_joint_dir=${fe_dir}joint_plots/
+
+# Is this a trial run?
+test=0
+
+if [ -d $fe_dir ]
+then
+   rm -r $fe_dir
+fi
+mkdir $fe_dir
+mkdir $fe_full_dir
+mkdir $fe_zoom_dir
+mkdir $fe_joint_dir
+
+Rscript get_fe_plots.R $analysis_dir $file_ave_params $file_kept_word_stems $test
 
 # 
 # # Step 7: Get tp plots by topic
