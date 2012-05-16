@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# DO NOT CHANGE THE QUEUE! YOU **MUST** ONLY USE THE QUEUE: short_serial
+#BSUB -q airoldi
+
+# EDIT THE EMAIL-ADDRESS BELOW TO YOUR FAS EMAIL:
+#BSUB -u jbischof@fas.harvard.edu
+
+# THE JOB ARRAY:
+#BSUB -J "process_model_comp_lab_lda[1-10]"
+
+#BSUB -R rusage[mem=5000]
+
+# THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
+main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
+cutoff=500
+out_dir=${main_dir}mmm_class_out/topic_class_out/
+
+# Create output directory if doesn't already exist
+if [ ! -d $out_dir ]
+then
+   mkdir $out_dir
+fi
+
+./process_model_comp_lab_lda.sh $main_dir $cutoff lab_lda

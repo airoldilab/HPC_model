@@ -7,6 +7,8 @@ model <- args[1]
 main.dir <- args[2]
 cutoff <- args[3]
 
+print(paste("Model name is:",model))
+
 #main.dir <- "/n/airoldifs1/jbischof/reuters_output/"
 raw.data.dir <- paste(main.dir,"mmm_raw_data/",sep="")
 class.dir <- paste(main.dir,"mmm_class_out/",sep="")
@@ -22,7 +24,6 @@ alpha <- 0.5
 topic.address.book <- read.table("reuters_topic_address_book.txt",
                                  header=TRUE,as.is=TRUE)
 topics <- topic.address.book[,"topic"]
-n.topics <- length(topics)
 
 # Load topic membs file---data has names '[partition].topic.membs'
 topic.membs.file <- paste(raw.data.dir,"reuters_topic_membs_sparse.RData",sep="")
@@ -46,13 +47,13 @@ if(model=="mmm"){
   colnames(test.topic.probs) <- topics
   
 
-} else if(model=="lda") {
+} else if(model=="lab_lda") {
   # Valid data
-  file.class.valid.params <- paste(out.dir,"reuters_",model,"_valid_probs.txt",sep="")
+  file.class.valid.params <- paste(out.dir,"reuters_",model,"_valid_prob.txt",sep="")
   valid.topic.probs <- read.table(file.class.valid.params,row.names=1,header=TRUE)
   valid.topic.probs <- valid.topic.probs[docids.valid,]
   # Test data
-  file.class.test.params <- paste(out.dir,"reuters_",model,"_test_probs.txt",sep="")
+  file.class.test.params <- paste(out.dir,"reuters_",model,"_test_prob.txt",sep="")
   test.topic.probs <- read.table(file.class.test.params,row.names=1,header=TRUE)
   test.topic.probs <- test.topic.probs[docids.test,]
   
@@ -110,8 +111,8 @@ for (i in 1:n.topics){
 
 if (model != "svm") {
   # Get vector predicted topic memb probs from model
-  fitted.valid.probs.mat <- as.matrix(valid.topic.probs[,topics.use])
-  fitted.test.probs.mat <- as.matrix(test.topic.probs[,topics.use])
+  fitted.valid.probs.mat <- as.matrix(valid.topic.probs[docids.valid,topics.use])
+  fitted.test.probs.mat <- as.matrix(test.topic.probs[docids.test,topics.use])
   fitted.valid.probs.vec <- as.vector(fitted.valid.probs.mat)
   fitted.test.probs.vec <- as.vector(fitted.test.probs.mat)
   
@@ -121,6 +122,11 @@ if (model != "svm") {
 
   # Get f1 measure for validation set from ROCR 
   perf.topic.valid.f1 <- performance(pred.topic.valid,"f",alpha=alpha)
+
+  # Get plot of performance by threshold
+  pdf(paste(out.dir,"f1_thres_plot.pdf"))
+  plot(perf.topic.valid.f1)
+  dev.off()
 
   # Get pref object for test set
   test.pred <- prediction(fitted.test.probs.vec,y.test.vec)
