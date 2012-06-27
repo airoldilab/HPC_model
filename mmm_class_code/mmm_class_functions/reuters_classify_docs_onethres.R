@@ -50,12 +50,10 @@ if(model=="mmm"){
 } else if(model=="lab_lda") {
   # Valid data
   file.class.valid.params <- paste(out.dir,"reuters_",model,"_valid_prob.txt",sep="")
-  valid.topic.probs <- read.table(file.class.valid.params,row.names=1,header=TRUE)
-  valid.topic.probs <- valid.topic.probs[docids.valid,]
+  valid.topic.probs <- as.matrix(read.table(file.class.valid.params,row.names=1,header=TRUE)[docids.valid,])
   # Test data
   file.class.test.params <- paste(out.dir,"reuters_",model,"_test_prob.txt",sep="")
-  test.topic.probs <- read.table(file.class.test.params,row.names=1,header=TRUE)
-  test.topic.probs <- test.topic.probs[docids.test,]
+  test.topic.probs <- as.matrix(read.table(file.class.test.params,row.names=1,header=TRUE)[docids.test,])
   
 } else if(model=="svm") {
   file.class.test.preds <- paste(out.dir,"reuters_svm_liblinear_test_pred.txt",sep="")
@@ -85,6 +83,8 @@ if(model!="svm"){
 # Get vector of true labels for topics---note that get vector by columns
 y.valid.mat <- valid.topic.membs[docids.valid,topics.use]
 y.test.mat <- test.topic.membs[docids.test,topics.use]
+y.valid.vec <- as.vector(y.valid.mat)
+y.test.vec <- as.vector(y.test.mat)
 
 # Check for empty topics and add a random (single) member to
 # smooth things over for now
@@ -95,9 +95,6 @@ if(length(zero.membs)>0){
     y.test.mat[1,pos] <- 1
   }
 }
-
-y.valid.vec <- as.vector(y.valid.mat)
-y.test.vec <- as.vector(y.test.mat)
 
 # Want labels for test vectors by topic so can break down results
 test.vec.topic.labels <- rep(topics.use,each=length(docids.test))
@@ -111,11 +108,9 @@ for (i in 1:n.topics){
 
 if (model != "svm") {
   # Get vector predicted topic memb probs from model
-  fitted.valid.probs.mat <- as.matrix(valid.topic.probs[docids.valid,topics.use])
-  fitted.test.probs.mat <- as.matrix(test.topic.probs[docids.test,topics.use])
-  fitted.valid.probs.vec <- as.vector(fitted.valid.probs.mat)
-  fitted.test.probs.vec <- as.vector(fitted.test.probs.mat)
-  
+  fitted.valid.probs.vec <- as.vector(valid.topic.probs[docids.valid,topics.use])
+  fitted.test.probs.vec <- as.vector(test.topic.probs[docids.test,topics.use])
+
   # Get prediction objects from ROCR
   pred.topic.valid <- prediction(fitted.valid.probs.vec,y.valid.vec)
   pred.topic.test <- prediction(fitted.test.probs.vec,y.test.vec)
@@ -124,7 +119,7 @@ if (model != "svm") {
   perf.topic.valid.f1 <- performance(pred.topic.valid,"f",alpha=alpha)
 
   # Get plot of performance by threshold
-  pdf(paste(out.dir,"f1_thres_plot.pdf"))
+  pdf(paste(out.dir,"f1_thres_plot.pdf",sep=""))
   plot(perf.topic.valid.f1)
   dev.off()
 

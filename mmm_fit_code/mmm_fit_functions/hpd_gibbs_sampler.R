@@ -25,7 +25,10 @@ hpd.gibbs.sampler <- function(current.param.list,
                               frac.doc.use=NULL,
                               # For how many words and docs should record entire sample path?
                               nwords.trace=50,ndocs.trace=50,
-                              ndraws.save=5){
+                              ndraws.save=5,
+                              # Should output computation times to file?
+                              file.time=NULL
+                              ){
   
   # Set up schedule for updating hessian
   hes.sched <- sqrt.seq.sched(1,ndraws.gibbs,Nupdate.hes)
@@ -35,6 +38,12 @@ hpd.gibbs.sampler <- function(current.param.list,
         xi.job.list <- pare.job.list(job.list=xi.job.list,frac.use=frac.doc.use)
         xi.updated <- unlist(xi.job.list)
    } else {xi.updated <- NULL}
+
+  # Set up time recording file if requested
+  if(!is.null(file.time)){
+    cat(sprintf("%s\t%s\t%s\n","Compute","File I/O","Total"),file=file.time,
+        append=FALSE)
+  }
   
   # Create list of stored draws
   final.param.list <- setup.final.param.list(current.param.list=current.param.list,
@@ -55,6 +64,10 @@ hpd.gibbs.sampler <- function(current.param.list,
   # Cycle through blocks of draws
   for(i in 1:ndraws.gibbs){
     if(print.iter){cat(paste("\nGlobal iteration",i,"\n"))}
+    t0 <- proc.time()[3]
+
+    # Refresh the likelihood hessian if on first iteration or each 100 iters
+    update.hessian.like <- i %in% hes.sched
     
     if(xi.update){
       # Cycle through all docs and draw membership parameters
@@ -62,8 +75,6 @@ hpd.gibbs.sampler <- function(current.param.list,
       # Tell slave nodes to prepare to draw xis
       cat("Xi draws\n")
       master.param.fn(param.tag=6)
-      # Refresh the likelihood hessian if on first iteration or each 100 iters
-      update.hessian.like <- i %in% hes.sched
       xi.master.out <- xi.master.fn(xi.job.list=xi.job.list,
                                     xi.param.vecs=
                                     current.param.list$xi.param.vecs,
@@ -87,8 +98,6 @@ hpd.gibbs.sampler <- function(current.param.list,
       # Tell slave nodes to prepare to draw tree parameters
       cat("Tree draws\n")
       master.param.fn(param.tag=5)
-      # Refresh the likelihood hessian if on first iteration or each 100 iters
-      update.hessian.like <- i %in% hes.sched
       tree.master.out <- tree.master.fn(tree.job.list=tree.job.list,
                                         current.param.list=current.param.list,
                                         update.hessian.like=update.hessian.like)
@@ -117,6 +126,8 @@ hpd.gibbs.sampler <- function(current.param.list,
         } else {current.param.list$lambda2 <- hparam.outlist$lambda2}
       }
       print(hparam.outlist)
+      t1 <- proc.time()[3]
+      if(verbose){cat(sprintf("Finished computation in %0.2f seconds\n",t1-t0))}
     }
 
     
@@ -142,6 +153,14 @@ hpd.gibbs.sampler <- function(current.param.list,
       save(final.param.list,file=file.final.param.list)
       save(ave.param.list,file=file.ave.param.list)
     }
+    
+    t2 <- proc.time()[3]
+    if(verbose){cat(sprintf("Finished file I/O in %0.2f seconds\n",t2-t1))}
+    if(verbose){cat(sprintf("Total time: %0.2f\n",t2-t0))}
+    if(all(!is.null(file.time),!update.hessian.like)){
+    cat(sprintf("%0.2f\t%0.2f\t%0.2f\n",t1-t0,t2-t1,t2-t0),file=file.time,
+        append=TRUE)
+  }
   }
   
   

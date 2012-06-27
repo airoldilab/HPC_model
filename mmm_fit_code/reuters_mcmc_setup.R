@@ -59,7 +59,7 @@ if(!file.ave.param.init=="0"){
     filename.mu.param.vecs <- paste(obs.data.dir,"initialized_mu",cutoff,".txt",sep="")
     filename.mu.corpus.vec <- paste(obs.data.dir,"initialized_corpus_mu",cutoff,".txt",sep="")
     filename.tau2.vec <- paste(obs.data.dir,"initialized_tau2",cutoff,".txt",sep="")
-    filename.ave.params <- NULL
+    filename.ave.param.init <- NULL
   }
 
 # Set up current.param.list from initialized parameters
@@ -88,13 +88,10 @@ save(current.param.list,file=outfile.initial)
 
 
 # Create job lists and output data for slaves
-doc.ids <- rownames(current.param.list$theta.param.vecs)
-word.ids <- names(current.param.list$mu.corpus.vec)
 out.job.lists <- get.job.lists.and.data(feature.count.list.orig=feature.count.list,
                                         doc.count.list.orig=doc.count.list,
                                         doc.topic.list.orig=doc.topic.list,
                                         doc.length.vec=doc.length.vec,
-                                        word.ids=word.ids,doc.ids=doc.ids,
                                         #theta.param.vecs=current.param.list$theta.param.vecs,
                                         #mu.corpus.vec=current.param.list$mu.corpus.vec,
                                         n.slaves=n.slaves,

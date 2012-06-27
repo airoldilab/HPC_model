@@ -165,8 +165,6 @@ get.job.lists.and.data <- function(doc.count.list.orig,
                                    doc.topic.list.orig,
                                    doc.length.vec,
                                    n.slaves,
-                                   doc.ids,
-                                   word.ids=NULL,
                                    theta.param.vecs=NULL,
                                    feature.count.list.orig=NULL,
                                    slave.file.root="slave_data",
@@ -174,6 +172,9 @@ get.job.lists.and.data <- function(doc.count.list.orig,
                                    classify=FALSE,
                                    active.docs.only=FALSE){
 
+  # Grab doc.ids
+  doc.ids <- names(doc.length.vec)
+  
   if(active.docs.only){
     # Figure out which theta.param.vecs need to be updated (have more than
     # one active topic)
@@ -186,8 +187,10 @@ get.job.lists.and.data <- function(doc.count.list.orig,
   # Get block sizes for parameters
   #n.slaves <- mpi.comm.size(comm=0)-1
   # Get block size for tree
-  if(!classify){n.words <- length(word.ids)
-                mpi.tree.block.size <- ceiling(n.words/n.slaves)}
+  if(!classify){
+    word.ids <- names(feature.count.list.orig)
+    n.words <- length(word.ids)
+    mpi.tree.block.size <- ceiling(n.words/n.slaves)}
   # Get block size for xis
   n.docs <- length(doc.ids)
   mpi.xi.block.size <- ceiling(n.docs/n.slaves)

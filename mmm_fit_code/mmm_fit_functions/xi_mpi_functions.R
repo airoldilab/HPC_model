@@ -128,13 +128,13 @@ xi.slave.fn <- function(current.param.list,doc.length.vec,
         
         if(any(classify,xi.slave.verbose)){
           doc.pos <- which(doc.ids==doc.id)
-          cat(sprintft("Worker %s finished doc %s of %s (%s) in %f seconds\n",
+          cat(sprintft("Worker %s finished doc %s of %s (%s) in %0.2f seconds\n",
                      worker.id,doc.pos,n.docs,doc.id,t1-t0))}
 
       }
 
       # Print times
-      cat(sprintft("Slave %d finished %d jobs in an average of %f seconds with std dev of %f seconds\n",
+      cat(sprintft("Slave %d finished %d jobs in an average of %0.2f seconds with std dev of %0.2f seconds\n",
                    worker.id,n.docs,mean(times),sd(times)))
 
       # Send results to master

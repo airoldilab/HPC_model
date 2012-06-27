@@ -48,6 +48,8 @@ file.ave.param.list <- paste(out.dir,"ave_params_gibbs.RData",sep="")
 file.final.param.list <- paste(out.dir,"final_params_gibbs.RData",sep="")
 # Set up root of file for slave specific data
 slave.file.root <- paste(out.dir,"slave_data",sep="")
+# Set up timing file
+file.time <- paste(out.dir,"compute_time.txt",sep="")
 
 if(is.master){
   # Load in initialized parameters
@@ -72,7 +74,7 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
 } else {
   final.param.list <- hpd.gibbs.sampler(current.param.list=current.param.list,
                                         topic.address.book=topic.address.book,
-                                        ndraws.gibbs=2500,
+                                        ndraws.gibbs=1000,
                                         verbose=FALSE,
                                         print.iter=TRUE,
                                         debug=FALSE,
@@ -80,7 +82,8 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
                                         xi.job.list=xi.job.list,
                                         file.current.param.list=file.current.param.list,
                                         file.ave.param.list=file.ave.param.list,
-                                        file.final.param.list=file.final.param.list)
+                                        file.final.param.list=file.final.param.list,
+                                        file.time=file.time)
 }
 
 
@@ -89,17 +92,17 @@ if(!is.master){mpi.slave.fn(topic.address.book=topic.address.book,
 if(is.master){
   save(final.param.list,file=file.final.param.list)
   t1 <- proc.time()[3]
-  cat(sprintf("Finished in %f seconds\n",t1-t0))
+  cat(sprintf("Finished in %0.2f seconds\n",t1-t0))
 }
 
-# Have master remove all the special data objects created for the slaves
-if(is.master){
-  n.slaves <- mpi.comm.size(0)-1
-  for(slave.id in 1:n.slaves){
-    file.rm <- paste(slave.file.root,slave.id,".RData",sep="")
-    system(paste("rm",file.rm))
-  }
-}
+## # Have master remove all the special data objects created for the slaves
+## if(is.master){
+##   n.slaves <- mpi.comm.size(0)-1
+##   for(slave.id in 1:n.slaves){
+##     file.rm <- paste(slave.file.root,slave.id,".RData",sep="")
+##     system(paste("rm",file.rm))
+##   }
+## }
 
 # Close down mpi
 mpi.admin("close")

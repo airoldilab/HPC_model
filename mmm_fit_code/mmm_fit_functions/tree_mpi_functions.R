@@ -143,7 +143,7 @@ tree.slave.fn <- function(current.param.list,doc.length.vec,
 
         if(tree.slave.verbose){
           word.pos <- which(word.ids==word.id)
-          cat(sprintf("Worker %s finished word %s of %s (%s) in %f seconds\n",
+          cat(sprintf("Worker %s finished word %s of %s (%s) in %0.2f seconds\n",
                       worker.id,word.pos,n.words,word.id,t1-t0))
         }
 
@@ -154,7 +154,7 @@ tree.slave.fn <- function(current.param.list,doc.length.vec,
       }
 
       # Print overall times
-      cat(sprintft("Slave %d finished %d jobs in an average of %f seconds with std dev of %f seconds\n",
+      cat(sprintft("Slave %d finished %d jobs in an average of %0.2f seconds with std dev of %0.2f seconds\n",
                    worker.id,n.words,mean(times),sd(times)))
 
       # Send results to master
