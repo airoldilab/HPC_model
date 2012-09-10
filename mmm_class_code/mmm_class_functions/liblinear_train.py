@@ -6,7 +6,7 @@ import sys
 import subprocess
 
 # Directories
-#main_dir = "/n/airoldifs1/jbischof/reuters_output/"
+#main_dir = "/n/airoldifs2/lab/jbischof/reuters_output/"
 #cutoff = 250
 main_dir = sys.argv[1]
 cutoff = sys.argv[2]

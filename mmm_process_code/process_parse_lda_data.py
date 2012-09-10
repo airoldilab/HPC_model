@@ -10,7 +10,7 @@ partition = sys.argv[1]
 cutoff = sys.argv[2]
 main_dir = sys.argv[3]
 
-#main_dir = "/n/airoldifs1/jbischof/reuters_output/"
+#main_dir = "/n/airoldifs2/lab/jbischof/reuters_output/"
 data_dir = main_dir + "mmm_raw_data/"
 out_dir = data_dir + "parsed_" + str(partition) + "_data" + str(cutoff) + "/"
 

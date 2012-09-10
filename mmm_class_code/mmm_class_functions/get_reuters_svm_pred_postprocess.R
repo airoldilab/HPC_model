@@ -5,7 +5,7 @@ main.dir <- args[1]
 cutoff <- args[2]
 
 # Find all the files associated with the classification
-#main.dir <- "/n/airoldifs1/jbischof/reuters_output/"
+#main.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/"
 class.dir <- paste(main.dir,"mmm_class_out/",sep="")
 raw.data.dir <- paste(main.dir,"mmm_raw_data/",sep="")
 out.dir <- paste(class.dir,"topic_class_out/",sep="")

@@ -11,7 +11,7 @@
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 model=logit
-main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
 class_dir=${main_dir}mmm_class_out/
 cutoff=500
 out_dir=${class_dir}${model}_liblinear_fits${cutoff}/

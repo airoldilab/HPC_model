@@ -26,7 +26,7 @@ source("/n/home13/jbischof/reuters_prj/hmc/hmc_functions.R")
 # Set up output directory
 args <- commandArgs(TRUE)
 out.dir <- args[1]
-#out.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/"
+#out.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/fake_data/"
 
 
 # Start up MPI; get node rank

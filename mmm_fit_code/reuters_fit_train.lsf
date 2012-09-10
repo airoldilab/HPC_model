@@ -19,6 +19,6 @@
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=250
 nodes=40
-mpirun -np ${nodes} Rscript reuters_fit.R /n/airoldifs1/jbischof/reuters_output/mmm_fits/fit_train${cutoff}/
+mpirun -np ${nodes} Rscript reuters_fit.R /n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/fit_train${cutoff}/
 
 

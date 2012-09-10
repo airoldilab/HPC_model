@@ -17,8 +17,8 @@ from clean_lda_data import *
 # Creates dictionary and also creates output file for analysis
 
 # Filenames
-dir_out = "/n/airoldifs1/jbischof/reuters_output/"
-#dir_out = "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/"
+dir_out = "/n/airoldifs2/lab/jbischof/reuters_output/"
+#dir_out = "/n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/"
 infile_sax = dir_out + "reuters_stemmed_art_extract.txt"
 infile_tdt = dir_out + "reuters_term_topic_codes.txt"
 outfile_lda = dir_out + "reuters_ldaformat.txt"

@@ -9,7 +9,7 @@ cutoff <- args[3]
 
 print(paste("Model name is:",model))
 
-#main.dir <- "/n/airoldifs1/jbischof/reuters_output/"
+#main.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/"
 raw.data.dir <- paste(main.dir,"mmm_raw_data/",sep="")
 class.dir <- paste(main.dir,"mmm_class_out/",sep="")
 out.dir <- paste(class.dir,"topic_class_out/",sep="")

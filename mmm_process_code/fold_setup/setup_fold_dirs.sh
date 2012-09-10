@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cutoff=500
-main_dir=/n/airoldifs1/jbischof/reuters_output/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 raw_data_dir=${main_dir}mmm_raw_data/
 fit_dir=${main_dir}mmm_fits/
 file_lda_clean=${main_dir}reuters_ldaformat_clean.txt

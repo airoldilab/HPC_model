@@ -9,7 +9,7 @@ cutoff = sys.argv[2]
 raw_data_dir = main_dir + "mmm_raw_data/"
 analysis_dir = main_dir + "mmm_analysis_out/"
 infilename_kept_words = raw_data_dir + "reuters_mmm_kept_word_ids" + str(cutoff) +".txt"
-infilename_stemmed_wc = "/n/airoldifs1/jbischof/reuters_output/reuters_stemmed_wc.txt"
+infilename_stemmed_wc = "/n/airoldifs2/lab/jbischof/reuters_output/reuters_stemmed_wc.txt"
 outfilename = analysis_dir + "kept_stop_words" + str(cutoff) +".txt"
 infilename_stop_words = "stop_word_lists/SMART_nltk_merge_stem_stop.txt"
 

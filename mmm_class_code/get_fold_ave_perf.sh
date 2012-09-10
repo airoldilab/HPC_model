@@ -1,6 +1,6 @@
 # Script to calculate average fold 
 
-#main_dir=/n/airoldifs1/jbischof/reuters_output/
+#main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 funct_dir="/n/home13/jbischof/reuters_prj/mmm_class_code/mmm_class_functions/"
 
 #Get arguments to script

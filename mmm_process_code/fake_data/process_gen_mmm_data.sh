@@ -1,5 +1,5 @@
 # Script to coordinate creation of fake data to fit HPD model
-main_dir=/n/airoldifs1/jbischof/reuters_output/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 data_dir=${main_dir}mmm_raw_data/fake_data/
 
 # Generate parameters for model

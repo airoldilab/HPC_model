@@ -3,7 +3,7 @@
 args <- commandArgs(TRUE)
 main.dir <- args[1]
 
-#main.dir <- "/n/airoldifs1/jbischof/reuters_output/"
+#main.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/"
 raw.data.dir <- paste(main.dir,"mmm_raw_data/",sep="")
 out.file <- paste(raw.data.dir,"reuters_topic_membs_sparse.RData",sep="")
 

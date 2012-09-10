@@ -3,10 +3,10 @@
 
 ## args <- commandArgs(TRUE)
 ## out.dir <- args[1]
-out.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/"
+out.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/fake_data/"
 data.out.dir <- paste(out.dir,"slave_data/",sep="")
 file.final.param.list <- paste(data.out.dir,"final_params_gibbs.RData",sep="")
-truth.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/fake_data/"
+truth.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/fake_data/"
 load(paste(truth.dir,"mmm_true_params.RData",sep=""))
 burnin <- 600
 

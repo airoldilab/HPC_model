@@ -16,10 +16,10 @@
 
 # "-R span[ptile=6]"
 
-# -o /n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/model_out.txt
-# -e /n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/model_error.txt
+# -o /n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/fake_data/model_out.txt
+# -e /n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/fake_data/model_error.txt
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
-out_dir=/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/slave_data/
+out_dir=/n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/fake_data/slave_data/
 nodes=40
 mpirun -np $nodes Rscript mmm_model_mcmc.R $out_dir

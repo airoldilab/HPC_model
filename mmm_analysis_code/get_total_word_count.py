@@ -7,7 +7,7 @@ main_dir = sys.argv[1]
 cutoff = sys.argv[2]
 
 #cutoff = 250
-#main_dir = "/n/airoldifs1/jbischof/reuters_output/"
+#main_dir = "/n/airoldifs2/lab/jbischof/reuters_output/"
 raw_data_dir = main_dir + "mmm_raw_data/"
 analysis_dir = main_dir + "mmm_analysis_out/"
 infilename_kept_words = raw_data_dir + "reuters_mmm_kept_word_ids" + str(cutoff) +".txt"

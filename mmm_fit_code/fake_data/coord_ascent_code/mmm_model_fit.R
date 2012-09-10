@@ -15,7 +15,7 @@ source(paste(funct.dir,"hparam_update.R",sep=""))
 # Set up output directory
 args <- commandArgs(TRUE)
 out.dir <- args[1]
-#out.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data/"
+#out.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/fake_data/"
 
 use.mpi <- TRUE
 # If using MPI, start up that process
@@ -88,7 +88,7 @@ if(!use.mpi){
 
   # Initalize parameters
   # Load in true parameter values
-  load("/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/fake_data/mmm_true_params.RData")
+  load("/n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/fake_data/mmm_true_params.RData")
   if(use.true.params){current.param.list <- true.param.list}
 
   # Initialize parameters

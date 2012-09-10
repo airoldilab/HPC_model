@@ -3,7 +3,7 @@
 import string
 
 ## Filenames
-#main_dir = "/n/airoldifs1/jbischof/reuters_output/"
+#main_dir = "/n/airoldifs2/lab/jbischof/reuters_output/"
 #data_dir = main_dir + "mmm_raw_data/"
 #mu_fit_dir = main_dir + "comp_model_fits/mu_fits/"
 #tau2_fit_dir = main_dir + "comp_model_fits/tau2_fits/"

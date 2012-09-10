@@ -72,6 +72,6 @@ def gen_term_doc_topic_dict(infile_name,outfile_name):
    outfile.close()
 
 
-infile_name = "/n/airoldifs1/jbischof/reuters_output/reuters_topic_codes.txt"
-outfile_name = "/n/airoldifs1/jbischof/reuters_output/reuters_term_topic_codes.txt"
+infile_name = "/n/airoldifs2/lab/jbischof/reuters_output/reuters_topic_codes.txt"
+outfile_name = "/n/airoldifs2/lab/jbischof/reuters_output/reuters_term_topic_codes.txt"
 gen_term_doc_topic_dict(infile_name,outfile_name)

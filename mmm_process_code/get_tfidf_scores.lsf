@@ -10,4 +10,4 @@
 #BSUB -J "get_tfidf"
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
-python get_tfidf_scores.py /n/airoldifs1/jbischof/reuters_output/ /n/airoldifs1/jbischof/reuters_output/mmm_raw_data/
+python get_tfidf_scores.py /n/airoldifs2/lab/jbischof/reuters_output/ /n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/

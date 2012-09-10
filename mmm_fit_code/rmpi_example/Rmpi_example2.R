@@ -20,7 +20,7 @@ mpi.spawn.Rslaves()
 #mpi.remote.exec( sprintf("I am worker %d of %d", mpi.comm.rank(), mpi.comm.size()-1))
 
 # Get the slaves to load the example data
-file.data <- "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/parsed_valid_data/feature_word_count_list.RData"
+file.data <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/parsed_valid_data/feature_word_count_list.RData"
 load(file.data)
 print(ls())
 # Get time

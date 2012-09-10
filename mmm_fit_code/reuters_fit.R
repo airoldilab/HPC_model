@@ -16,7 +16,7 @@ source(paste(funct.dir,"tree_update.R",sep=""))
 source(paste(funct.dir,"hparam_update.R",sep=""))
 
 ## # Set up output directory
-## main.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/"
+## main.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/"
 ## dir.out <- paste(main.dir,out.folder,sep="")
 
 use.mpi <- TRUE
@@ -71,8 +71,8 @@ topic.address.book <- read.table("reuters_topic_address_book.txt",
 
 # If not using MPI, load in observed data and initialize parameters
 if(!use.mpi){
-  data.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/"
-  obs.data.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/parsed_train_data500/"
+  data.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/"
+  obs.data.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/parsed_train_data500/"
   filename.doc.topic <- paste(obs.data.dir,"doc_topic_list.RData",sep="")
   filename.doc.word.count <- paste(obs.data.dir,"doc_word_count_list.RData",sep="")
   filename.feature.word.count <- paste(obs.data.dir,"feature_word_count_list.RData",sep="")

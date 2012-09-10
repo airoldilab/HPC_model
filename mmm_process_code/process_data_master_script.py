@@ -14,14 +14,14 @@ main_dir = sys.argv[1]
 cutoff = int(sys.argv[2])
 first_stage=int(sys.argv[3])
 #cutoff = 500
-#main_dir = "/n/airoldifs1/jbischof/reuters_output/"
+#main_dir = "/n/airoldifs2/lab/jbischof/reuters_output/"
 raw_data_dir = main_dir + "mmm_raw_data/"
 out_train_dir = raw_data_dir + "parsed_train_data" + str(cutoff) + "/"
 
 # Filenames
 
 # Step 1
-infile_wc = "/n/airoldifs1/jbischof/reuters_output/reuters_stemmed_wc.txt"
+infile_wc = "/n/airoldifs2/lab/jbischof/reuters_output/reuters_stemmed_wc.txt"
 outfile_cand = raw_data_dir + "reuters_mmm_kept_word_ids" + str(cutoff) + ".txt"
 
 # Step 2

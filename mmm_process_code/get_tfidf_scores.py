@@ -6,7 +6,7 @@ import string
 import numpy as np
 main_dir = sys.argv[1]
 raw_data_dir = sys.argv[2]
-infilename_stemmed_wc = "/n/airoldifs1/jbischof/reuters_output/reuters_stemmed_wc.txt"
+infilename_stemmed_wc = "/n/airoldifs2/lab/jbischof/reuters_output/reuters_stemmed_wc.txt"
 infilename_lda = raw_data_dir + "reuters_train_ldaformat.txt"
 outfilename = raw_data_dir + "reuters_train_tfidf.txt"
 

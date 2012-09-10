@@ -13,7 +13,7 @@
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 partition=train_valid
 cutoff=500
-main_dir=/n/airoldifs1/jbischof/reuters_output/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 out_dir=${main_dir}mmm_raw_data/parsed_${partition}_data${cutoff}/
 
 # Create partition directory if doesn't already exist

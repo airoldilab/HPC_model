@@ -11,7 +11,7 @@
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 nodes=8
-main_dir=/n/airoldifs1/jbischof/reuters_output/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 obs_data_dir=${main_dir}mmm_raw_data/fake_data/parsed_train_data/
 out_dir=${main_dir}mmm_fits/fake_data/slave_data/
 Rscript mmm_model_fit_setup.R $nodes $obs_data_dir $out_dir

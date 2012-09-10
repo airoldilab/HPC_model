@@ -13,7 +13,7 @@ if(model=="mmm"){
 }
 
 for( fold in folds ) {
-  main.dir <- paste("/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold",
+  main.dir <- paste("/n/airoldifs2/lab/jbischof/reuters_output/mmm_folds/fold",
                     fold,"/",sep="")
   topic.class.dir <- paste(main.dir,"mmm_class_out/topic_class_out/",sep="")
   fold.perf.file <- paste(topic.class.dir,"reuters_",model,
@@ -36,7 +36,7 @@ fold.perf.ave <- round(apply(perf.array,1:2,mean),4)
 fold.perf.sd <- round(apply(perf.array,1:2,sd),4)
 
 # Write output to disk
-out.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_folds/"
+out.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_folds/"
 out.ave.file <- paste(out.dir,model,"_fold_perf_ave.txt",sep="")
 write.table(fold.perf.ave,file=out.ave.file,quote=FALSE,sep="\t")
 out.sd.file <- paste(out.dir,model,"_fold_perf_sd.txt",sep="")

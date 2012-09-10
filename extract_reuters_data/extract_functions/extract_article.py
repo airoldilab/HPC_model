@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
 # Set parameters
 #data_dir = "/n/scratch06/airoldi_scratch/jbischof/reuters_data"
-#dir_out = "/n/airoldifs1/jbischof/reuters_output/"
+#dir_out = "/n/airoldifs2/lab/jbischof/reuters_output/"
 # Change the directories for this trial run
 #data_dir = "19960820_subset/"
 #dir_out = "subset_output/"

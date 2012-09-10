@@ -13,7 +13,7 @@ weight.phi <- 0.5
 stop.reg.dir <- paste(analysis.dir,"stop_reg_plots/",sep="")
 
 ## cutoff <- 500
-## main.dir <- "/n/airoldifs1/jbischof/reuters_output/"
+## main.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/"
 ## fit.dir <- paste(main.dir,"mmm_fits/fit_train",cutoff,"/",sep="")
 ## analysis.dir <- paste(main.dir,"mmm_analysis_out/",sep="")
 

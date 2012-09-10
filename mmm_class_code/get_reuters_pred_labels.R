@@ -12,7 +12,7 @@ max.only <- as.numeric(args[5])
 
 ## cutoff <- 500
 ## partition <- "valid"
-## main.dir <- "/n/airoldifs1/jbischof/reuters_output/"
+## main.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/"
 ## slave.data.dir <- paste(main.dir,"mmm_class_out/",partition,
 ##                  "_slave_data",cutoff,"/",sep="")
 ## slave.id <- 1

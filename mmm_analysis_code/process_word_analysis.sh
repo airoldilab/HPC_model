@@ -1,5 +1,5 @@
 # Master script to analyze output of model to understand word usage patterns
-main_dir=/n/airoldifs1/jbischof/reuters_output/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 cutoff=500
 fit_dir=${main_dir}mmm_fits/fit_train${cutoff}/
 analysis_dir=${main_dir}mmm_analysis_out/

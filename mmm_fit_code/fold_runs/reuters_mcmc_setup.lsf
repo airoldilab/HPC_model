@@ -12,7 +12,7 @@
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
 nodes=40
-main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
 fit_dir=${main_dir}mmm_fits/
 out_dir=${fit_dir}fit_train${cutoff}/
 data_dir=${main_dir}mmm_raw_data/

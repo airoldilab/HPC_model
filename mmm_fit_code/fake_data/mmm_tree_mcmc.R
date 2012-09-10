@@ -23,7 +23,7 @@ source("/n/home13/jbischof/reuters_prj/hmc/hmc_functions.R")
 # Set up output directory
 ## args <- commandArgs(TRUE)
 ## out.dir <- args[1]
-main.dir <- "/n/airoldifs1/jbischof/reuters_output/"
+main.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/"
 out.dir <- paste(main.dir,"mmm_fits/fake_data/",sep="")
 obs.data.dir <- paste(main.dir,"mmm_raw_data/fake_data/parsed_train_data/",sep="")
 out.dir <- paste(main.dir,"mmm_fits/fake_data/slave_data/",sep="")
@@ -55,7 +55,7 @@ doc.topic.list <- data.list$doc.topic.list
 
 # Initalize parameters
 # Load in true parameter values
-load("/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/fake_data/mmm_true_params.RData")
+load("/n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/fake_data/mmm_true_params.RData")
 if(use.true.params){current.param.list <- true.param.list
                     filename.doc.xi <- paste(obs.data.dir,"doc_xi_list.RData",sep="")
                     load(filename.doc.xi)

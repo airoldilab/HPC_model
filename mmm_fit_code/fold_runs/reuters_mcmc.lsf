@@ -19,7 +19,7 @@
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
 nodes=40
-main_dir=/n/airoldifs1/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/mmm_folds/fold${LSB_JOBINDEX}/
 dir_out=${main_dir}mmm_fits/fit_train${cutoff}/
 # Only update the affinity paramters?
 start_run=0

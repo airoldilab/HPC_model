@@ -247,7 +247,7 @@ def topic_mem_dicts_out(outfile_name,topic_mem_dict,topic_any_dict,topic_cl_dict
    outfile.close()
 
 topic_code_file = "/n/home13/jbischof/reuters_prj/mmm_analysis_code/topic_codes.txt"
-main_dir = "/n/airoldifs1/jbischof/reuters_output/"
+main_dir = "/n/airoldifs2/lab/jbischof/reuters_output/"
 out_dir = main_dir + "mmm_analysis_out/"
 infile_name = main_dir + "reuters_term_topic_codes.txt"
 outfile_mixm = out_dir + "mix_mem_tab.txt"

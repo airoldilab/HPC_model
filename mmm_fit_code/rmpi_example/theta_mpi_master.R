@@ -3,7 +3,7 @@ source("mpi_admin.R")
 mpi.admin("open")
 
 # Get the slaves to load data created by master
-data.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/parsed_valid_data/"
+data.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/parsed_valid_data/"
 file.slave.data <- paste(data.dir,"slave_data.Rdata",sep="")
 mpi.bcast.Robj2slave(file.slave.data)
 mpi.bcast.cmd(load(file.slave.data))

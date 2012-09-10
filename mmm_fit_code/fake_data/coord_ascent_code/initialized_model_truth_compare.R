@@ -1,5 +1,5 @@
 # Load in fitted parameters and truth
-dir.out <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/fake_data_debug/"
+dir.out <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/fake_data_debug/"
 load(paste(dir.out,"final.params.initialized.RData",sep=""))
 load("mmm_true_params.RData")
 

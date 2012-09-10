@@ -9,7 +9,7 @@
 # THE JOB ARRAY:
 #BSUB -J "get_partition_doc_ids"
 
-main_dir=/n/airoldifs1/jbischof/reuters_output/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 python mmm_class_functions/get_partition_doc_ids.py $main_dir

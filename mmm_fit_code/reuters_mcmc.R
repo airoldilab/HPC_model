@@ -30,7 +30,7 @@ source(paste(funct.dir,"case_control_samp.R",sep=""))
 source("/n/home13/jbischof/reuters_prj/hmc/hmc_functions.R")
 
 ## # Set up output directory
-## main.dir <- "/n/airoldifs1/jbischof/reuters_output/mmm_fits/"
+## main.dir <- "/n/airoldifs2/lab/jbischof/reuters_output/mmm_fits/"
 ## out.dir <- paste(main.dir,out.folder,sep="")
 
 # Start up MPI; get node rank

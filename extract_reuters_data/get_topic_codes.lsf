@@ -5,7 +5,7 @@
 #BSUB -J "get_topic_codes"
 
 data_dir=/n/scratch06/airoldi_scratch/jbischof/reuters_data/
-out_dir=/n/airoldifs1/jbischof/reuters_output/
+out_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 outfilename=${out_dir}reuters_topic_codes.txt
 
 

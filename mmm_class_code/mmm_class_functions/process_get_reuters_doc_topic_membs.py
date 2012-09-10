@@ -11,7 +11,7 @@ from get_reuters_doc_topic_membs import *
 main_dir = sys.argv[1]
 
 # Filenames
-#main_dir = "/n/airoldifs1/jbischof/reuters_output/"
+#main_dir = "/n/airoldifs2/lab/jbischof/reuters_output/"
 raw_data_dir = main_dir + "mmm_raw_data/"
 class_dir = main_dir + "mmm_class_out/"
 infilename_tab = "/n/home13/jbischof/reuters_prj/mmm_class_code/reuters_topic_address_book_py.txt"

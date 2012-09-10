@@ -12,7 +12,7 @@
 cutoff=500
 nodes=200
 partition=test
-main_dir=/n/airoldifs1/jbischof/reuters_output/
+main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 out_dir=${main_dir}mmm_class_out/${partition}_slave_data${cutoff}/
 fit_dir=${main_dir}mmm_fits/fit_train${cutoff}/
 data_dir=${main_dir}mmm_raw_data/

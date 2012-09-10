@@ -4,7 +4,7 @@
 import string
 
 # Set up directories
-#main_dir = "/n/airoldifs1/jbischof/reuters_output/"
+#main_dir = "/n/airoldifs2/lab/jbischof/reuters_output/"
 #data_dir = main_dir + "mmm_raw_data/"
 #infilename_lda = data_dir + "reuters_valid_ldaformat.txt"
 #infilename_tab = "topic_address_book_py.txt"

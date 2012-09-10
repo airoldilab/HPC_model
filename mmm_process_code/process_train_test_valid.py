@@ -8,8 +8,8 @@ sys.path.append("mmm_process_functions/")
 from gen_train_test import *
 
 # Filenames
-main_dir = "/n/airoldifs1/jbischof/reuters_output/"
-out_dir = "/n/airoldifs1/jbischof/reuters_output/mmm_raw_data/"
+main_dir = "/n/airoldifs2/lab/jbischof/reuters_output/"
+out_dir = "/n/airoldifs2/lab/jbischof/reuters_output/mmm_raw_data/"
 
 # First split
 lda_filename1 = main_dir + "reuters_ldaformat_clean.txt"
