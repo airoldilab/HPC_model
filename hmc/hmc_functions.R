@@ -20,6 +20,21 @@ p.draw <- function(M.sd,M.diag){
   return(p)
 }
 
+p.update <- function(p,q,U.grad,step.size,half.step,...){
+  if(half.step){
+    p <- p - (step.size/2)*U.grad(q,...)    
+  } else {
+    p <- p - step.size*U.grad(q,...)    
+  }
+  return(p)
+}
+
+q.update <- function(q,p,M.inv,M.diag,step.size){
+  if(M.diag){q <- q + step.size*M.inv*p
+    } else {q <- q + step.size*as.vector(M.inv%*%p)}
+  return(q)
+}
+
 # Function to perform leapfrog steps
 leapfrog <- function(U.grad,q.current,p.current,step.size,nsteps,U,
                      M.inv,M.diag,debug,...){
@@ -34,18 +49,33 @@ leapfrog <- function(U.grad,q.current,p.current,step.size,nsteps,U,
 
   # If only one step requested, save time with modified Euler method
   if(nsteps==1){
-    p.current <- p.current - step.size*U.grad(q.current,...)
-    if(M.diag){q.current <- q.current + step.size*M.inv*p.current
-    } else {q.current <- q.current + step.size*as.vector(M.inv%*%p.current)}
+    p.current <- p.update(p=p.current,q=q.current,U.grad=U.grad,
+                          step.size=step.size,half.step=FALSE,...)
+    q.current <- q.update(q=q.current,p=p.current,M.inv=M.inv,M.diag=M.diag,
+                          step.size=step.size)
+    #p.current <- p.current - step.size*U.grad(q.current,...)
+    #if(M.diag){q.current <- q.current + step.size*M.inv*p.current
+    #} else {q.current <- q.current + step.size*as.vector(M.inv%*%p.current)}
   } else {
   # Otherwise, use more intensive leapfrog method to reduce integration error
-  # Debug mode only active for leapfrog steps 
-    for(i in 1:nsteps){ 
-      half.momentum <- p.current - (step.size/2)*U.grad(q.current,...)
-      if(M.diag){q.current <- q.current + step.size*M.inv*half.momentum
-      } else {q.current <- q.current + step.size*as.vector(M.inv%*%half.momentum)}
-      #q.current <- q.current + step.size*as.vector(M.inv%*%half.momentum)
-      p.current <- half.momentum - (step.size/2)*U.grad(q.current,...)
+  # Debug mode only active for leapfrog steps
+    # Make a half step for momentum at the beginning
+    p.current <- p.update(p=p.current,q=q.current,U.grad=U.grad,
+                          step.size=step.size,half.step=TRUE,...)
+    for(i in 1:nsteps){
+      # Make a full step for position
+      q.current <- q.update(q=q.current,p=p.current,M.inv=M.inv,M.diag=M.diag,
+                          step.size=step.size)
+      # Make a full step for momentum
+      # Only do half step on last step
+      half.step <- i == nsteps
+      p.current <- p.update(p=p.current,q=q.current,U.grad=U.grad,
+                         step.size=step.size,half.step=half.step,...)
+      ## half.momentum <- p.current - (step.size/2)*U.grad(q.current,...)
+      ## if(M.diag){q.current <- q.current + step.size*M.inv*half.momentum
+      ## } else {q.current <- q.current + step.size*as.vector(M.inv%*%half.momentum)}
+      ## #q.current <- q.current + step.size*as.vector(M.inv%*%half.momentum)
+      ## p.current <- half.momentum - (step.size/2)*U.grad(q.current,...)
       if(debug){
         h.current <- hamil(q=q.current,p=p.current,U=U,
                            M.inv=M.inv,M.diag=M.diag,...)
