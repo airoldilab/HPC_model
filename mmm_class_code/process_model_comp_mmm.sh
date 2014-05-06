@@ -6,9 +6,8 @@ funct_dir="/n/home13/jbischof/reuters_prj/mmm_class_code/mmm_class_functions/"
 
 #Get arguments to script
 main_dir=$1
-cutoff=$2
-
-model=mmm
+model=$2
+cutoff=$3
 
 echo
 echo "#########"

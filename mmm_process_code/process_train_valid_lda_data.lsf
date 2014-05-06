@@ -19,7 +19,7 @@ out_dir=${main_dir}mmm_raw_data/parsed_${partition}_data${cutoff}/
 # Create partition directory if doesn't already exist
 if [ ! -d $out_dir ]
 then
-mkdir $out_dir
+	mkdir $out_dir
 fi
 
 # Run python script

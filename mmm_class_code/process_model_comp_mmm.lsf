@@ -15,6 +15,7 @@
 main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 cutoff=500
 out_dir=${main_dir}mmm_class_out/topic_class_out/
+model=mmm
 
 # Create output directory if doesn't already exist
 if [ ! -d $out_dir ]
@@ -22,4 +23,4 @@ then
    mkdir $out_dir
 fi
 
-./process_model_comp_mmm.sh $main_dir $cutoff
+./process_model_comp_mmm.sh $main_dir $model $cutoff

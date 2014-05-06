@@ -11,6 +11,6 @@
 
 # THE COMMAND TO GIVE TO R, CHANGE TO THE APPROPRIATE FILENAME:
 cutoff=500
-first_stage=1
+first_stage=0
 main_dir=/n/airoldifs2/lab/jbischof/reuters_output/
 python process_data_master_script.py $main_dir $cutoff $first_stage
